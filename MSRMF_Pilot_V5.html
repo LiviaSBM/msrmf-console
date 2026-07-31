@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MSRMF-TRC-002 — Triage &amp; Release Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<!-- Calibri Light is a licensed Microsoft font; it renders on systems that have it installed (most Windows/Office machines) via the fallback stack below. -->
+<style>
+  :root{
+    --paper:#eaf0f6; --panel:#ffffff; --ink:#12314f; --steel:#4c6478;
+    --line:#c7d5e0; --line-strong:#8fa8bd;
+    --accent:#1d4e89; --accent-soft:#dce8f4;
+    --accent2:#3f7cac; --accent2-soft:#e5f0f7;
+    --ok:#2e5f7a; --ok-soft:#dde9f0;
+    --risk-low:#3f7cac; --risk-med:#1d4e89; --risk-high:#12314f; --risk-crit:#0a1f33;
+    --display:'Calibri Light', Calibri, 'Segoe UI', sans-serif;
+    --label:'Calibri Light', Calibri, 'Segoe UI', sans-serif;
+    --body:'Calibri Light', Calibri, 'Segoe UI', sans-serif;
+    --mono:'JetBrains Mono','Consolas',monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--paper); color:var(--ink); font-family:var(--body); font-size:16px; line-height:1.6;}
+
+  .titleblock-wrap{max-width:1240px; margin:24px auto 0; padding:0 24px;}
+  .titleblock{border:2px solid var(--ink); background:var(--panel); display:grid; grid-template-columns:88px 1fr auto;}
+  .tb-logo{display:flex; align-items:center; justify-content:center; border-right:2px solid var(--ink); padding:10px;}
+  .tb-main{padding:14px 18px; border-right:2px solid var(--ink);}
+  .tb-eyebrow{font-family:var(--label); font-size:12.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin:0 0 4px;}
+  .tb-title{font-family:var(--display); font-weight:700; font-size:27px; letter-spacing:-.01em; margin:0 0 6px;}
+  .tb-desc{margin:0; max-width:680px; font-size:14px; color:var(--steel);}
+  .tb-meta{display:grid; grid-template-rows:repeat(4,1fr);}
+  .tb-meta div{padding:6px 16px; border-bottom:1px solid var(--line-strong); font-family:var(--mono); font-size:12px; display:flex; justify-content:space-between; gap:14px; min-width:200px;}
+  .tb-meta div:last-child{border-bottom:none;}
+  .tb-meta span.k{color:var(--steel); text-transform:uppercase; letter-spacing:.05em;}
+  .tb-meta span.v{font-weight:600;}
+
+  .rev-strip{max-width:1240px; margin:10px auto 0; padding:0 24px; font-family:var(--mono); font-size:12px; color:var(--steel); display:flex; gap:18px; flex-wrap:wrap;}
+  .rev-strip b{color:var(--ink);}
+
+  .scope-banner{
+    max-width:1240px; margin:14px auto 0; padding:12px 20px; background:var(--accent-soft);
+    border:1px solid var(--accent); font-size:14px; color:#0d2c4a;
+  }
+  .scope-banner b{color:var(--accent);}
+
+  nav.tabs{
+    max-width:1240px; margin:16px auto 0; padding:8px 24px 0; display:flex; gap:6px; flex-wrap:wrap;
+  }
+  nav.tabs button{
+    font-family:var(--label); font-size:14px; font-weight:600; text-transform:uppercase; letter-spacing:.03em;
+    background:#fff; border:2px solid var(--ink); padding:10px 18px; cursor:pointer; color:var(--ink);
+    border-bottom:none; border-radius:6px 6px 0 0; position:relative; top:2px;
+  }
+  nav.tabs button.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+  nav.tabs button:not(.active):hover{background:var(--accent-soft); border-color:var(--accent);}
+
+  main{max-width:1240px; margin:0 auto; padding:22px 24px 60px;}
+  .tabpanel{display:none;}
+  .tabpanel.active{display:block;}
+
+  .method-panel{background:var(--panel); border:1px solid var(--line-strong); padding:16px 20px; margin-bottom:22px;}
+  .method-panel h2{margin:0 0 8px; font-family:var(--label); font-size:14px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink); border-bottom:2px solid var(--accent); display:inline-block; padding-bottom:3px;}
+  .method-panel p{margin:0 0 8px; font-size:14px; color:#33372f; max-width:860px;}
+  .formula{font-family:var(--mono); background:var(--accent-soft); border:1px solid var(--accent); padding:9px 14px; font-size:14px; display:inline-block; color:#0d2c4a;}
+
+  .card{background:var(--panel); border:1px solid var(--line-strong); padding:16px 20px; margin-bottom:18px;}
+  .card h3{margin:0 0 12px; font-family:var(--label); font-size:13.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--steel);}
+
+  table{width:100%; border-collapse:collapse; font-size:14px;}
+  th,td{padding:7px 8px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top;}
+  th{font-family:var(--label); font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--steel); font-weight:600; border-bottom:2px solid var(--line-strong);}
+  td input, td select, td textarea{width:100%; border:1px solid var(--line); padding:4px 6px; font-family:var(--body); font-size:14px; background:#fff;}
+  td textarea{resize:vertical; min-height:32px;}
+
+  .band-tag{font-family:var(--mono); font-size:12px; padding:2px 7px; text-transform:uppercase; letter-spacing:.04em; white-space:nowrap; border:1px solid;}
+  .band-fasttrack{background:var(--accent-soft); color:var(--accent); border-color:var(--accent);}
+  .band-standard{background:var(--accent2-soft); color:var(--accent2); border-color:var(--accent2);}
+  .band-deferred{background:#eef2f6; color:var(--steel); border-color:var(--line-strong);}
+
+  .toolbar{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;}
+  button.btn{font-family:var(--label); font-size:13px; letter-spacing:.03em; text-transform:uppercase; border:1px solid var(--ink); padding:8px 14px; cursor:pointer; background:var(--ink); color:#fff;}
+  button.btn.secondary{background:#fff; color:var(--ink);}
+  button.btn.accent{background:var(--accent); border-color:var(--accent);}
+  button.btn:hover{opacity:.85;}
+  .del-btn{background:none; border:none; color:var(--accent); cursor:pointer; font-size:15px; padding:2px 6px; font-family:var(--mono);}
+
+  .kpi-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px;}
+  .kpi{background:var(--panel); border:1px solid var(--line-strong); border-top:3px solid var(--accent); padding:12px 16px;}
+  .kpi .n{font-family:var(--mono); font-size:25px; font-weight:600;}
+  .kpi .l{font-family:var(--label); font-size:12px; color:var(--steel); text-transform:uppercase; letter-spacing:.05em; margin-top:2px;}
+
+  .rhi-box{display:flex; align-items:center; gap:20px; padding:14px 0;}
+  .rhi-number{font-family:var(--mono); font-size:44px; font-weight:600; color:var(--accent);}
+  .rhi-bar-track{flex:1; height:22px; background:#eef2f6; border:1px solid var(--line-strong);}
+  .rhi-bar-fill{height:100%; background:var(--accent);}
+
+  .risk-pill{font-family:var(--mono); font-size:14px; padding:5px 14px; color:#fff; display:inline-block;}
+  .risk-Low{background:var(--risk-low);}
+  .risk-Medium{background:var(--risk-med);}
+  .risk-High{background:var(--risk-high);}
+  .risk-Critical{background:var(--risk-crit);}
+
+  .sim-controls{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px;}
+  .sim-controls label{display:flex; flex-direction:column; gap:4px; font-family:var(--label); font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--steel); flex:1; min-width:150px;}
+  .sim-controls input, .sim-controls select{font-family:var(--mono); font-size:14px; border:1px solid var(--line-strong); padding:6px 8px; background:#fff;}
+  .sim-result{background:var(--accent-soft); border:1px solid var(--accent); padding:12px 16px; font-size:14px;}
+  .sim-result b{color:var(--accent);}
+  .disclaimer{font-style:italic; font-size:12.5px; color:var(--steel);}
+
+  .checklist-row{display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--line);}
+  .checklist-row label{flex:1; font-size:14px;}
+  .checklist-row input[type=checkbox]{width:18px; height:18px;}
+
+  .filters{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;}
+  .filters label{display:flex; flex-direction:column; gap:4px; font-family:var(--label); font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--steel);}
+  .filters select, .filters input{font-family:var(--body); font-size:14px; border:1px solid var(--line-strong); padding:6px 8px; background:#fff;}
+
+  footer{max-width:1240px; margin:0 auto; padding:0 24px 44px; color:var(--steel); font-size:12.5px;}
+  .empty-note{color:var(--steel); font-style:italic; font-size:13.5px; padding:10px 0;}
+</style>
+</head>
+<body>
+
+<div class="titleblock-wrap">
+  <div class="titleblock">
+    <div class="tb-logo">
+      <svg width="56" height="56" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="4" width="92" height="92" fill="none" stroke="#12314f" stroke-width="4"/>
+        <line x1="50" y1="18" x2="22" y2="68" stroke="#1d4e89" stroke-width="4"/>
+        <line x1="50" y1="18" x2="78" y2="68" stroke="#1d4e89" stroke-width="4"/>
+        <line x1="22" y1="68" x2="78" y2="68" stroke="#1d4e89" stroke-width="4"/>
+        <circle cx="50" cy="18" r="8" fill="#12314f"/>
+        <circle cx="22" cy="68" r="8" fill="#12314f"/>
+        <circle cx="78" cy="68" r="8" fill="#12314f"/>
+        <circle cx="50" cy="18" r="8" fill="none" stroke="#ffffff" stroke-width="2"/>
+        <circle cx="22" cy="68" r="8" fill="none" stroke="#ffffff" stroke-width="2"/>
+        <circle cx="78" cy="68" r="8" fill="none" stroke="#ffffff" stroke-width="2"/>
+      </svg>
+    </div>
+    <div class="tb-main">
+      <p class="tb-eyebrow">Multi-Site Release Management Framework</p>
+      <h1 class="tb-title">Triage &amp; Release Console</h1>
+      <p class="tb-desc">Reference implementation of a gated engineering release-governance methodology (Triage → Validation → Authorization → Deployment → Monitoring → Results) for multi-site automation programs.</p>
+    </div>
+    <div class="tb-meta">
+      <div><span class="k">Dwg No.</span><span class="v">MSRMF&#8209;TRC&#8209;002</span></div>
+      <div><span class="k">Rev.</span><span class="v">B</span></div>
+      <div><span class="k">Scale</span><span class="v">N/A</span></div>
+      <div><span class="k">Status</span><span class="v">Pilot</span></div>
+    </div>
+  </div>
+</div>
+<div class="rev-strip"><span><b>Rev B</b> — Gated workflow (Gates 1–3), deployment, monitoring, KPI/RHI, risk engine, simulation, knowledge base</span><span>Client-side only — no data transmitted or stored</span></div>
+
+<div class="scope-banner">
+  <b>Scope note:</b> this is a single-organization pilot tool. All statistics, KPIs, and the Release Health Index below are computed exclusively from the tickets and batches entered in this session — there is no cross-company dataset, no external adoption data, and no simulated "community benchmark." Figures shown reflect only what you enter here.
+</div>
+
+<nav class="tabs" id="tabs">
+  <button data-tab="gate1" class="active">Gate 1 — Triage</button>
+  <button data-tab="gate2">Gate 2 — Validation</button>
+  <button data-tab="gate3">Gate 3 — Authorization</button>
+  <button data-tab="deploy">Deployment</button>
+  <button data-tab="monitor">Monitoring</button>
+  <button data-tab="results">Results &amp; KPIs</button>
+  <button data-tab="risk">Risk &amp; Simulation</button>
+  <button data-tab="kb">Knowledge Base</button>
+  <button data-tab="studies">Field Evaluation</button>
+  <button data-tab="pubs">Publications</button>
+</nav>
+<div class="scope-banner" style="background:#fff; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+  <span><b>Session data:</b> this tool keeps everything only in your browser tab. Save before closing, or you will lose your work.</span>
+  <span style="display:flex; gap:8px; flex-wrap:wrap;">
+    <button class="btn accent" id="emailSend">📧 Send Results by Email</button>
+    <button class="btn secondary" id="saveSession">💾 Save Session (JSON)</button>
+    <button class="btn secondary" id="loadSessionBtn">📂 Load Session (JSON)</button>
+    <input type="file" id="loadSessionFile" accept="application/json" style="display:none;">
+  </span>
+</div>
+
+
+<main>
+
+  <!-- GATE 1 -->
+  <section class="tabpanel active" id="tab-gate1">
+    <div class="method-panel">
+      <h2>Gate 1 — Triage</h2>
+      <p>Every incoming item is classified by category, severity, and scope, then assigned a priority score and release band. Justification fields capture the reasoning behind inclusion or exclusion, consistent with the framework's emphasis on documented, auditable decisions rather than ad hoc judgment.</p>
+      <div class="formula">priority&nbsp;=&nbsp;(severity_weight&nbsp;×&nbsp;3)&nbsp;+&nbsp;(scope_weight&nbsp;×&nbsp;2)&nbsp;−&nbsp;complexity</div>
+      <p style="margin-top:8px;">Severity weights: P0=4, P1=3, P2=2, P3=1. Scope weights: Network=4, Client=3, Site=2, Single Unit=1. Bands — <b>Fast-Track</b> (≥18), <b>Standard Review</b> (10–17), <b>Deferred</b> (&lt;10).</p>
+    </div>
+    <div class="card">
+      <h3>Ticket Intake</h3>
+      <table>
+        <thead><tr>
+          <th style="width:60px;">ID</th><th style="width:130px;">Category</th><th style="width:90px;">Severity</th>
+          <th style="width:120px;">Scope</th><th style="width:90px;">Complexity</th>
+          <th style="width:150px;">Reason for Inclusion</th><th style="width:150px;">Reason for Exclusion</th>
+          <th style="width:80px;">Priority</th><th style="width:110px;">Band</th><th style="width:30px;"></th>
+        </tr></thead>
+        <tbody id="gate1Body"></tbody>
+      </table>
+      <div class="toolbar">
+        <button class="btn" id="addTicket">+ Add Ticket</button>
+        <button class="btn secondary" id="loadSample1">Load Sample Backlog</button>
+        <button class="btn secondary" id="clearTickets">Clear All</button>
+        <button class="btn accent" id="exportCsv1">Export CSV</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- GATE 2 -->
+  <section class="tabpanel" id="tab-gate2">
+    <div class="method-panel">
+      <h2>Gate 2 — Validation</h2>
+      <p>Technical review determines whether a triaged ticket is sound for release. This gate also records who requested inclusion, making visible any tension between operational/commercial pressure and engineering judgment — a dynamic the framework treats as central to credible release governance.</p>
+    </div>
+    <div class="card">
+      <h3>Technical Review</h3>
+      <table>
+        <thead><tr>
+          <th style="width:60px;">ID</th><th style="width:140px;">Requested By</th>
+          <th style="width:150px;">Technical Review</th><th style="width:130px;">Release Manager</th>
+          <th style="width:110px;">Decision Date</th><th style="width:200px;">Comments</th>
+        </tr></thead>
+        <tbody id="gate2Body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- GATE 3 -->
+  <section class="tabpanel" id="tab-gate3">
+    <div class="method-panel">
+      <h2>Gate 3 — Authorization</h2>
+      <p>Only tickets approved at Gate 2 are eligible here. Final authorization requires all four checklist items to be confirmed — this materializes the framework's principle that release readiness is a checklist of independently verifiable conditions, not a single subjective sign-off.</p>
+    </div>
+    <div class="card">
+      <h3>Authorization Checklist</h3>
+      <div id="gate3List"></div>
+    </div>
+  </section>
+
+  <!-- DEPLOYMENT -->
+  <section class="tabpanel" id="tab-deploy">
+    <div class="method-panel">
+      <h2>Deployment</h2>
+      <p>Authorized tickets are grouped into batches for coordinated multi-site rollout. Each batch tracks scope (sites), timing, status, and incident/rollback outcomes.</p>
+    </div>
+    <div class="card">
+      <h3>Release Batches</h3>
+      <table>
+        <thead><tr>
+          <th style="width:130px;">Batch Name</th><th style="width:220px;">Tickets Included</th>
+          <th style="width:80px;">Sites</th><th style="width:110px;">Date</th>
+          <th style="width:130px;">Status</th><th style="width:90px;">Incidents</th>
+          <th style="width:80px;">Rollback</th><th style="width:90px;">Time (days)</th><th style="width:30px;"></th>
+        </tr></thead>
+        <tbody id="batchBody"></tbody>
+      </table>
+      <div class="toolbar">
+        <button class="btn" id="addBatch">+ Add Batch</button>
+        <button class="btn secondary" id="loadSampleBatch">Load Sample Batches</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- MONITORING -->
+  <section class="tabpanel" id="tab-monitor">
+    <div class="method-panel">
+      <h2>Monitoring</h2>
+      <p>A cumulative timeline of deployed batches, with incident logging for post-release tracking.</p>
+    </div>
+    <div class="card">
+      <h3>Deployment Timeline</h3>
+      <div id="timelineView"></div>
+    </div>
+  </section>
+
+  <!-- RESULTS / KPI -->
+  <section class="tabpanel" id="tab-results">
+    <div class="method-panel">
+      <h2>Results &amp; KPI Engine</h2>
+      <p>All figures below are computed automatically from the tickets and batches you have entered in this session.</p>
+    </div>
+    <div class="card">
+      <h3>Core KPIs</h3>
+      <div class="kpi-grid" id="kpiGrid"></div>
+    </div>
+    <div class="card">
+      <h3>Release Health Index (RHI)</h3>
+      <p style="font-size:13.5px; color:var(--steel); max-width:760px;">A composite index proposed as part of this framework, combining safety approval rate, implementation complexity (inverted), rollback readiness, and deployment success into a single 0–100 score.</p>
+      <div class="formula" style="margin-bottom:10px;">RHI&nbsp;=&nbsp;(Safety Rate×30)&nbsp;+&nbsp;((1−Avg.Complexity/5)×20)&nbsp;+&nbsp;(Rollback Readiness×30)&nbsp;+&nbsp;(Deployment Success×20)</div>
+      <div class="rhi-box">
+        <div class="rhi-number" id="rhiNumber">—</div>
+        <div class="rhi-bar-track"><div class="rhi-bar-fill" id="rhiBar" style="width:0%;"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RISK & SIMULATION -->
+  <section class="tabpanel" id="tab-risk">
+    <div class="method-panel">
+      <h2>Risk Engine</h2>
+      <p>A rule-based (non-statistical) heuristic estimate of overall release risk, derived from open high-severity tickets, average complexity, average scope, and rollback history entered above.</p>
+    </div>
+    <div class="card">
+      <h3>Current Overall Risk</h3>
+      <div id="riskCurrent"></div>
+    </div>
+    <div class="card">
+      <h3>What-If Simulation <span class="disclaimer">(illustrative heuristic model — not a statistical forecast)</span></h3>
+      <div class="sim-controls">
+        <label>Additional tickets<input type="number" id="sim-add-count" value="10" min="0"></label>
+        <label>Their severity<select id="sim-add-severity"><option>P0</option><option>P1</option><option selected>P2</option><option>P3</option></select></label>
+        <label>Split into batches<input type="number" id="sim-batches" value="1" min="1"></label>
+      </div>
+      <button class="btn accent" id="runSim">Run Simulation</button>
+      <div class="sim-result" id="simResult" style="margin-top:14px;"></div>
+    </div>
+  </section>
+
+  <!-- KNOWLEDGE BASE -->
+  <section class="tabpanel" id="tab-kb">
+    <div class="method-panel">
+      <h2>Knowledge Base</h2>
+      <p>Search and filter the decisions recorded above — e.g., all P0 tickets, or all batches with a rollback.</p>
+    </div>
+    <div class="card">
+      <h3>Filters</h3>
+      <div class="filters">
+        <label>Severity<select id="kb-severity"><option value="">All</option><option>P0</option><option>P1</option><option>P2</option><option>P3</option></select></label>
+        <label>Band<select id="kb-band"><option value="">All</option><option>Fast-Track</option><option>Standard Review</option><option>Deferred</option></select></label>
+        <label>Rollback only<select id="kb-rollback"><option value="">All batches</option><option value="yes">Yes</option><option value="no">No</option></select></label>
+      </div>
+      <button class="btn" id="kbSearch">Search</button>
+      <div id="kbResults" style="margin-top:16px;"></div>
+    </div>
+  </section>
+
+  <!-- VALIDATION PROGRAM -->
+  <section class="tabpanel" id="tab-studies">
+    <div class="method-panel">
+      <h2>Field Evaluation — Early Adopter Pilots</h2>
+      <p>Each entry represents one organization's completed (or in-progress) 30-day field evaluation of the framework. This section records observations and self-reported outcomes from participating organizations — it is not a claim that the methodology has been formally validated. Public identifiers only (Organization ID, industry, country) are used in any exported report — real names, if recorded at all, stay in the "internal use only" field and are never included in exports or printed reports.</p>
+    </div>
+    <div class="card">
+      <h3>Recorded Pilots</h3>
+      <div id="studiesList"></div>
+      <div class="toolbar">
+        <button class="btn" id="addStudy">+ Add Pilot Entry</button>
+        <button class="btn accent" id="exportResearchCsv">Generate Research Dataset (CSV)</button>
+        <button class="btn secondary" id="genSummaryStats">Generate Summary Statistics</button>
+      </div>
+      <div id="summaryStatsBox" style="margin-top:14px;"></div>
+    </div>
+  </section>
+
+  <!-- PUBLICATIONS -->
+  <section class="tabpanel" id="tab-pubs">
+    <div class="method-panel">
+      <h2>Publications &amp; Related Evidence</h2>
+      <p>A manually maintained index tying the framework's published, patented, and presented record together with pilot reports. Add only real, verifiable items — this is a reference index, not a generator.</p>
+    </div>
+    <div class="card">
+      <h3>Index</h3>
+      <div id="pubsList"></div>
+      <div class="toolbar">
+        <button class="btn" id="addPub">+ Add Entry</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>Pilot reference implementation of a gated, generalized multi-site engineering release-governance methodology. All computation is client-side; no data is transmitted, stored server-side, or aggregated across organizations.</p>
+</footer>
+
+<script>
+const CATS = ["Software","Hardware","Configuration","Safety","Documentation"];
+const SEVERITIES = ["P0","P1","P2","P3"];
+const SCOPES = ["Single Unit","Site","Client","Network"];
+const REQUESTERS = ["Engineering","Operations","Customer","Safety","Executive"];
+const REVIEWS = ["Pending","Approved","Rejected","Needs More Testing","Blocked"];
+const SEV_W = {P0:4,P1:3,P2:2,P3:1};
+const SCOPE_W = {"Single Unit":1,"Site":2,"Client":3,"Network":4};
+
+let tickets = [];
+let batches = [];
+let seqT = 1, seqB = 1;
+
+function priorityOf(t){ return (SEV_W[t.severity]*3) + (SCOPE_W[t.scope]*2) - t.complexity; }
+function bandOf(p){
+  if(p>=18) return {name:"Fast-Track", cls:"band-fasttrack"};
+  if(p>=10) return {name:"Standard Review", cls:"band-standard"};
+  return {name:"Deferred", cls:"band-deferred"};
+}
+function newTicket(cat,sev,scope,complexity){
+  return {
+    id:seqT++, category:cat, severity:sev, scope:scope, complexity:complexity,
+    reasonInclusion:"", reasonExclusion:"",
+    requestedBy:REQUESTERS[0], technicalReview:"Pending", releaseManagerDecision:"", decisionDate:"", comments:"",
+    checklist:{rollbackPlan:false, safetyApproved:false, documentationComplete:false, operationsReady:false},
+    batchId:null
+  };
+}
+function finalAuthOf(t){
+  return t.technicalReview==="Approved" && Object.values(t.checklist).every(v=>v===true);
+}
+
+/* -------- TABS -------- */
+document.getElementById('tabs').addEventListener('click',(e)=>{
+  if(e.target.tagName!=='BUTTON') return;
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tabpanel').forEach(p=>p.classList.remove('active'));
+  e.target.classList.add('active');
+  document.getElementById('tab-'+e.target.dataset.tab).classList.add('active');
+  renderAll();
+});
+
+/* -------- GATE 1 -------- */
+function renderGate1(){
+  const tbody = document.getElementById('gate1Body');
+  if(tickets.length===0){ tbody.innerHTML = `<tr><td colspan="10" class="empty-note">No tickets yet — add one or load the sample backlog.</td></tr>`; return; }
+  tbody.innerHTML = '';
+  [...tickets].sort((a,b)=>priorityOf(b)-priorityOf(a)).forEach(t=>{
+    const p = priorityOf(t); const b = bandOf(p);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-family:var(--mono);">T-${String(t.id).padStart(3,'0')}</td>
+      <td><select data-f="category" data-id="${t.id}">${CATS.map(c=>`<option ${c===t.category?'selected':''}>${c}</option>`).join('')}</select></td>
+      <td><select data-f="severity" data-id="${t.id}">${SEVERITIES.map(c=>`<option ${c===t.severity?'selected':''}>${c}</option>`).join('')}</select></td>
+      <td><select data-f="scope" data-id="${t.id}">${SCOPES.map(c=>`<option ${c===t.scope?'selected':''}>${c}</option>`).join('')}</select></td>
+      <td><input type="number" min="0" max="5" data-f="complexity" data-id="${t.id}" value="${t.complexity}"></td>
+      <td><input type="text" data-f="reasonInclusion" data-id="${t.id}" value="${t.reasonInclusion}"></td>
+      <td><input type="text" data-f="reasonExclusion" data-id="${t.id}" value="${t.reasonExclusion}"></td>
+      <td style="font-family:var(--mono); font-weight:600;">${p}</td>
+      <td><span class="band-tag ${b.cls}">${b.name}</span></td>
+      <td><button class="del-btn" data-id="${t.id}">&times;</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-f]').forEach(el=>{
+    el.addEventListener('input',(e)=>{
+      const id = Number(e.target.dataset.id); const f = e.target.dataset.f;
+      const t = tickets.find(x=>x.id===id); if(!t) return;
+      t[f] = (f==='complexity') ? (Number(e.target.value)||0) : e.target.value;
+      renderAll();
+    });
+  });
+  tbody.querySelectorAll('.del-btn').forEach(btn=>{
+    btn.addEventListener('click',(e)=>{
+      const id = Number(e.target.dataset.id);
+      tickets = tickets.filter(x=>x.id!==id);
+      batches.forEach(b=>b.ticketIds=b.ticketIds.filter(x=>x!==id));
+      renderAll();
+    });
+  });
+}
+
+/* -------- GATE 2 -------- */
+function renderGate2(){
+  const tbody = document.getElementById('gate2Body');
+  if(tickets.length===0){ tbody.innerHTML = `<tr><td colspan="6" class="empty-note">No tickets yet — add them in Gate 1 first.</td></tr>`; return; }
+  tbody.innerHTML = '';
+  tickets.forEach(t=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-family:var(--mono);">T-${String(t.id).padStart(3,'0')}</td>
+      <td><select data-f="requestedBy" data-id="${t.id}">${REQUESTERS.map(c=>`<option ${c===t.requestedBy?'selected':''}>${c}</option>`).join('')}</select></td>
+      <td><select data-f="technicalReview" data-id="${t.id}">${REVIEWS.map(c=>`<option ${c===t.technicalReview?'selected':''}>${c}</option>`).join('')}</select></td>
+      <td><input type="text" data-f="releaseManagerDecision" data-id="${t.id}" value="${t.releaseManagerDecision}" placeholder="Name"></td>
+      <td><input type="date" data-f="decisionDate" data-id="${t.id}" value="${t.decisionDate}"></td>
+      <td><textarea data-f="comments" data-id="${t.id}">${t.comments}</textarea></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-f]').forEach(el=>{
+    el.addEventListener('input',(e)=>{
+      const id = Number(e.target.dataset.id); const f = e.target.dataset.f;
+      const t = tickets.find(x=>x.id===id); if(!t) return;
+      t[f] = e.target.value;
+      renderAll();
+    });
+  });
+}
+
+/* -------- GATE 3 -------- */
+function renderGate3(){
+  const list = document.getElementById('gate3List');
+  const eligible = tickets.filter(t=>t.technicalReview==="Approved");
+  if(eligible.length===0){ list.innerHTML = `<p class="empty-note">No tickets have been Approved at Gate 2 yet.</p>`; return; }
+  list.innerHTML = eligible.map(t=>{
+    const auth = finalAuthOf(t);
+    return `
+      <div class="card" style="margin-bottom:10px;">
+        <h3>T-${String(t.id).padStart(3,'0')} — ${t.category} / ${t.severity} / ${t.scope}</h3>
+        ${['rollbackPlan','safetyApproved','documentationComplete','operationsReady'].map(k=>{
+          const labels = {rollbackPlan:"Rollback Plan", safetyApproved:"Safety Approved", documentationComplete:"Documentation Complete", operationsReady:"Operations Ready"};
+          return `<div class="checklist-row">
+            <input type="checkbox" data-id="${t.id}" data-k="${k}" ${t.checklist[k]?'checked':''}>
+            <label>${labels[k]}</label>
+          </div>`;
+        }).join('')}
+        <p style="margin-top:10px; font-family:var(--mono); font-size:13px;">
+          Final Authorization: <b style="color:${auth?'var(--accent)':'var(--steel)'}">${auth?'AUTHORIZED':'PENDING'}</b>
+        </p>
+      </div>
+    `;
+  }).join('');
+  list.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.addEventListener('change',(e)=>{
+      const id = Number(e.target.dataset.id); const k = e.target.dataset.k;
+      const t = tickets.find(x=>x.id===id); if(!t) return;
+      t.checklist[k] = e.target.checked;
+      renderAll();
+    });
+  });
+}
+
+/* -------- DEPLOYMENT -------- */
+function newBatch(){ return {id:seqB++, name:"Batch "+seqB, ticketIds:[], sitesCount:0, date:"", status:"Planned", incidentsCount:0, rollback:false, timeDays:0}; }
+function renderDeploy(){
+  const tbody = document.getElementById('batchBody');
+  const authorized = tickets.filter(t=>finalAuthOf(t));
+  if(batches.length===0){ tbody.innerHTML = `<tr><td colspan="9" class="empty-note">No batches yet — add one. Only tickets with Final Authorization (Gate 3) can be assigned.</td></tr>`; return; }
+  tbody.innerHTML = '';
+  batches.forEach(b=>{
+    const options = authorized.map(t=>`<option value="${t.id}" ${b.ticketIds.includes(t.id)?'selected':''}>T-${String(t.id).padStart(3,'0')}</option>`).join('');
+    tbody.innerHTML += `
+      <tr>
+        <td><input type="text" data-f="name" data-id="${b.id}" value="${b.name}"></td>
+        <td><select multiple data-f="ticketIds" data-id="${b.id}" size="3">${options}</select></td>
+        <td><input type="number" data-f="sitesCount" data-id="${b.id}" value="${b.sitesCount}"></td>
+        <td><input type="date" data-f="date" data-id="${b.id}" value="${b.date}"></td>
+        <td><select data-f="status" data-id="${b.id}">${["Planned","In Progress","Completed","Rolled Back"].map(s=>`<option ${s===b.status?'selected':''}>${s}</option>`).join('')}</select></td>
+        <td><input type="number" data-f="incidentsCount" data-id="${b.id}" value="${b.incidentsCount}"></td>
+        <td><input type="checkbox" data-f="rollback" data-id="${b.id}" ${b.rollback?'checked':''}></td>
+        <td><input type="number" data-f="timeDays" data-id="${b.id}" value="${b.timeDays}"></td>
+        <td><button class="del-btn" data-delbatch="${b.id}">&times;</button></td>
+      </tr>
+    `;
+  });
+  tbody.querySelectorAll('[data-f]').forEach(el=>{
+    el.addEventListener(el.multiple ? 'change' : 'input', (e)=>{
+      const id = Number(e.target.dataset.id); const f = e.target.dataset.f;
+      const b = batches.find(x=>x.id===id); if(!b) return;
+      if(f==='ticketIds'){ b.ticketIds = Array.from(e.target.selectedOptions).map(o=>Number(o.value)); }
+      else if(f==='rollback'){ b.rollback = e.target.checked; }
+      else if(f==='sitesCount' || f==='incidentsCount' || f==='timeDays'){ b[f] = Number(e.target.value)||0; }
+      else { b[f] = e.target.value; }
+      renderAll();
+    });
+  });
+  tbody.querySelectorAll('[data-delbatch]').forEach(btn=>{
+    btn.addEventListener('click',(e)=>{
+      batches = batches.filter(x=>x.id!==Number(e.target.dataset.delbatch));
+      renderAll();
+    });
+  });
+}
+
+/* -------- MONITORING -------- */
+function renderMonitor(){
+  const el = document.getElementById('timelineView');
+  if(batches.length===0){ el.innerHTML = `<p class="empty-note">No batches yet — add them in the Deployment tab.</p>`; return; }
+  let cum = 0;
+  el.innerHTML = batches.map(b=>{
+    cum += (b.timeDays||0);
+    return `
+      <div class="card" style="margin-bottom:10px;">
+        <h3>${b.name} — ${b.status}</h3>
+        <p style="font-size:13.5px;">Sites: <b>${b.sitesCount}</b> · Date: <b>${b.date||'—'}</b> · Duration: <b>${b.timeDays}d</b> · Cumulative: <b>${cum}d</b></p>
+        <p style="font-size:13.5px;">Incidents logged: <b>${b.incidentsCount}</b> ${b.rollback ? '· <span style="color:var(--accent);">ROLLBACK OCCURRED</span>' : ''}</p>
+      </div>
+    `;
+  }).join('');
+}
+
+/* -------- RESULTS / KPI -------- */
+function renderResults(){
+  const grid = document.getElementById('kpiGrid');
+  const total = tickets.length;
+  const approved = tickets.filter(t=>t.technicalReview==="Approved").length;
+  const reviewed = tickets.filter(t=>t.technicalReview!=="Pending").length;
+  const approvalRate = reviewed ? Math.round((approved/reviewed)*100) : 0;
+  const safetyTickets = tickets.filter(t=>t.category==="Safety");
+  const safetyApproved = safetyTickets.filter(t=>t.technicalReview==="Approved").length;
+  const safetyRate = safetyTickets.length ? (safetyApproved/safetyTickets.length) : 0;
+  const completedBatches = batches.filter(b=>b.status==="Completed"||b.status==="Rolled Back");
+  const successBatches = batches.filter(b=>b.status==="Completed" && !b.rollback);
+  const deploySuccess = completedBatches.length ? (successBatches.length/completedBatches.length) : 0;
+  const rollbackRate = batches.length ? Math.round((batches.filter(b=>b.rollback).length/batches.length)*100) : 0;
+  const avgComplexity = total ? (tickets.reduce((s,t)=>s+t.complexity,0)/total) : 0;
+  const avgScope = total ? (tickets.reduce((s,t)=>s+SCOPE_W[t.scope],0)/total) : 0;
+  const authorizedCount = tickets.filter(t=>finalAuthOf(t)).length;
+
+  grid.innerHTML = `
+    <div class="kpi"><div class="n">${total}</div><div class="l">Total Tickets</div></div>
+    <div class="kpi"><div class="n">${authorizedCount}</div><div class="l">Authorized (Gate 3)</div></div>
+    <div class="kpi"><div class="n">${approvalRate}%</div><div class="l">Approval Rate</div></div>
+    <div class="kpi"><div class="n">${batches.length}</div><div class="l">Total Releases</div></div>
+    <div class="kpi"><div class="n">${rollbackRate}%</div><div class="l">Rollback Rate</div></div>
+    <div class="kpi"><div class="n">${avgComplexity.toFixed(1)}</div><div class="l">Avg. Complexity</div></div>
+    <div class="kpi"><div class="n">${avgScope.toFixed(1)}</div><div class="l">Avg. Scope Weight</div></div>
+    <div class="kpi"><div class="n">${Math.round(deploySuccess*100)}%</div><div class="l">Deployment Success</div></div>
+  `;
+
+  const rollbackReadiness = total ? (tickets.filter(t=>t.checklist.rollbackPlan).length/total) : 0;
+  const rhi = (safetyRate*30) + ((1-(avgComplexity/5))*20) + (rollbackReadiness*30) + (deploySuccess*20);
+  const rhiClamped = Math.max(0, Math.min(100, Math.round(rhi)));
+  document.getElementById('rhiNumber').textContent = total||batches.length ? rhiClamped : '—';
+  document.getElementById('rhiBar').style.width = (total||batches.length ? rhiClamped : 0)+'%';
+}
+
+/* -------- RISK ENGINE + SIMULATION -------- */
+function computeRisk(ticketList, batchList){
+  const p0 = ticketList.filter(t=>t.severity==="P0").length;
+  const p1 = ticketList.filter(t=>t.severity==="P1").length;
+  const avgComplexity = ticketList.length ? (ticketList.reduce((s,t)=>s+t.complexity,0)/ticketList.length) : 0;
+  const avgScope = ticketList.length ? (ticketList.reduce((s,t)=>s+SCOPE_W[t.scope],0)/ticketList.length) : 0;
+  const rollbackHistory = batchList.filter(b=>b.rollback).length;
+  const score = (p0*4) + (p1*2) + (avgComplexity*2) + (avgScope*1.5) + (rollbackHistory*3);
+  let level = "Low";
+  if(score>=40) level="Critical"; else if(score>=25) level="High"; else if(score>=12) level="Medium";
+  return {score:Math.round(score*10)/10, level};
+}
+function renderRisk(){
+  const r = computeRisk(tickets, batches);
+  document.getElementById('riskCurrent').innerHTML = `
+    <p style="font-size:14px;">Risk Score: <b style="font-family:var(--mono);">${r.score}</b></p>
+    <span class="risk-pill risk-${r.level}">${r.level.toUpperCase()} RISK</span>
+  `;
+}
+document.getElementById('runSim').addEventListener('click',()=>{
+  const addCount = Number(document.getElementById('sim-add-count').value)||0;
+  const addSeverity = document.getElementById('sim-add-severity').value;
+  const numBatches = Math.max(1, Number(document.getElementById('sim-batches').value)||1);
+
+  const baseline = computeRisk(tickets, batches);
+  const simulatedTickets = [...tickets];
+  for(let i=0;i<addCount;i++){ simulatedTickets.push(newTicket("Software", addSeverity, "Site", 2)); }
+  const simulated = computeRisk(simulatedTickets, batches);
+
+  const avgBatchSize = simulatedTickets.length / numBatches;
+  const baselineRollbackRate = batches.length ? (batches.filter(b=>b.rollback).length/batches.length) : 0.10;
+  const referenceBatchSize = 15;
+  const predictedRollbackProb = Math.min(0.95, baselineRollbackRate * (avgBatchSize/referenceBatchSize || 1));
+
+  document.getElementById('simResult').innerHTML = `
+    <p>Baseline risk score: <b>${baseline.score}</b> (${baseline.level}) → Projected after adding ${addCount} × ${addSeverity} tickets: <b>${simulated.score}</b> (${simulated.level})</p>
+    <p>If split into ${numBatches} batch(es) — avg. batch size ≈ <b>${avgBatchSize.toFixed(1)}</b> tickets — projected rollback probability: <b>${Math.round(predictedRollbackProb*100)}%</b></p>
+    <p class="disclaimer">This is a simple rule-based heuristic derived from the data entered above, not a statistically validated prediction.</p>
+  `;
+});
+
+/* -------- KNOWLEDGE BASE -------- */
+document.getElementById('kbSearch').addEventListener('click',()=>{
+  const sev = document.getElementById('kb-severity').value;
+  const band = document.getElementById('kb-band').value;
+  const rb = document.getElementById('kb-rollback').value;
+  let filteredTickets = tickets.filter(t=>{
+    if(sev && t.severity!==sev) return false;
+    if(band && bandOf(priorityOf(t)).name!==band) return false;
+    return true;
+  });
+  let filteredBatches = batches.filter(b=>{
+    if(rb==="yes" && !b.rollback) return false;
+    if(rb==="no" && b.rollback) return false;
+    return true;
+  });
+  const el = document.getElementById('kbResults');
+  el.innerHTML = `
+    <h3 style="font-family:var(--label); font-size:13px; text-transform:uppercase; color:var(--steel);">Matching Tickets (${filteredTickets.length})</h3>
+    <table><thead><tr><th>ID</th><th>Category</th><th>Severity</th><th>Scope</th><th>Band</th></tr></thead>
+    <tbody>${filteredTickets.map(t=>`<tr><td style="font-family:var(--mono);">T-${String(t.id).padStart(3,'0')}</td><td>${t.category}</td><td>${t.severity}</td><td>${t.scope}</td><td>${bandOf(priorityOf(t)).name}</td></tr>`).join('') || '<tr><td colspan="5" class="empty-note">No matches.</td></tr>'}</tbody></table>
+    <h3 style="font-family:var(--label); font-size:13px; text-transform:uppercase; color:var(--steel); margin-top:16px;">Matching Batches (${filteredBatches.length})</h3>
+    <table><thead><tr><th>Name</th><th>Status</th><th>Rollback</th><th>Incidents</th></tr></thead>
+    <tbody>${filteredBatches.map(b=>`<tr><td>${b.name}</td><td>${b.status}</td><td>${b.rollback?'Yes':'No'}</td><td>${b.incidentsCount}</td></tr>`).join('') || '<tr><td colspan="4" class="empty-note">No matches.</td></tr>'}</tbody></table>
+  `;
+});
+
+/* -------- CSV EXPORT -------- */
+document.getElementById('exportCsv1').addEventListener('click',()=>{
+  const header = ["ticket_id","category","severity","scope","complexity","priority","band","technical_review","final_authorization"];
+  const rows = tickets.map(t=>{
+    const p = priorityOf(t);
+    return [`T-${String(t.id).padStart(3,'0')}`, t.category, t.severity, t.scope, t.complexity, p, bandOf(p).name, t.technicalReview, finalAuthOf(t)?"Yes":"No"];
+  });
+  const csv = [header,...rows].map(r=>r.join(",")).join("\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download="msrmf_tickets.csv";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+});
+
+/* -------- BUTTONS -------- */
+document.getElementById('addTicket').addEventListener('click',()=>{ tickets.push(newTicket("Software","P2","Site",2)); renderAll(); });
+document.getElementById('clearTickets').addEventListener('click',()=>{ tickets=[]; batches.forEach(b=>b.ticketIds=[]); renderAll(); });
+document.getElementById('loadSample1').addEventListener('click',()=>{
+  tickets = [
+    newTicket("Safety","P0","Network",3),
+    newTicket("Hardware","P1","Client",4),
+    newTicket("Software","P2","Site",2),
+    newTicket("Configuration","P3","Single Unit",1),
+    newTicket("Safety","P1","Site",3),
+    newTicket("Documentation","P3","Single Unit",1),
+    newTicket("Hardware","P0","Client",5),
+    newTicket("Software","P2","Network",2),
+  ];
+  tickets.forEach(t=>{ t.technicalReview="Approved"; t.requestedBy="Engineering"; t.checklist={rollbackPlan:true,safetyApproved:true,documentationComplete:true,operationsReady:true}; });
+  renderAll();
+});
+document.getElementById('addBatch').addEventListener('click',()=>{ batches.push(newBatch()); renderAll(); });
+document.getElementById('loadSampleBatch').addEventListener('click',()=>{
+  const authIds = tickets.filter(t=>finalAuthOf(t)).map(t=>t.id);
+  const b1 = newBatch(); b1.name="Batch 1"; b1.ticketIds=authIds.slice(0,3); b1.sitesCount=8; b1.date="2026-08-15"; b1.status="Completed"; b1.incidentsCount=1; b1.rollback=false; b1.timeDays=7;
+  const b2 = newBatch(); b2.name="Batch 2"; b2.ticketIds=authIds.slice(3,6); b2.sitesCount=14; b2.date="2026-08-22"; b2.status="Rolled Back"; b2.incidentsCount=3; b2.rollback=true; b2.timeDays=5;
+  batches = [b1,b2];
+  renderAll();
+});
+
+function renderAll(){
+  renderGate1(); renderGate2(); renderGate3(); renderDeploy(); renderMonitor(); renderResults(); renderRisk(); renderStudies(); renderPubs();
+}
+
+
+
+/* =========================================================
+   VALIDATION PROGRAM (studies) — real pilots only
+   ========================================================= */
+let studies = [];
+let seqS = 1;
+
+function newStudy(){
+  return {
+    id: seqS,
+    orgId: "ORG-"+String(seqS++).padStart(3,'0'),
+    orgNamePrivate: "",
+    industry: "", country: "",
+    pilotStart: "", pilotEnd: "",
+    objective: "", completed: false, lessonsLearned: "",
+    numReleases: 0, numTickets: 0,
+    p0: 0, p1: 0, p2: 0, p3: 0,
+    avgBatchSize: 0, rollbackRate: 0, incidentsTotal: 0,
+    avgLeadTime: 0, deploymentSuccess: 0, rhi: 0,
+    survey: { usability:"", clarity:"", ease:"", decisionImprovement:"", riskReduction:"", comments:"" }
+  };
+}
+
+const STUDY_FIELDS_TOP = [
+  ["industry","Industry","text"], ["country","Country","text"],
+  ["pilotStart","Pilot Start","date"], ["pilotEnd","Pilot End","date"],
+  ["numReleases","Number of Releases","number"], ["numTickets","Number of Tickets","number"],
+];
+const STUDY_FIELDS_KPI = [
+  ["p0","P0 count","number"], ["p1","P1 count","number"], ["p2","P2 count","number"], ["p3","P3 count","number"],
+  ["avgBatchSize","Avg. Batch Size","number"], ["rollbackRate","Rollback Rate (%)","number"],
+  ["incidentsTotal","Incidents (total)","number"], ["avgLeadTime","Avg. Lead Time (days)","number"],
+  ["deploymentSuccess","Deployment Success (%)","number"], ["rhi","RHI Score","number"],
+];
+const SURVEY_FIELDS = [
+  ["usability","Usability (1–5)"], ["clarity","Clarity (1–5)"], ["ease","Ease of Use (1–5)"],
+  ["decisionImprovement","Improved Decisions (1–5)"], ["riskReduction","Reduced Risk (1–5)"],
+];
+
+function renderStudies(){
+  const el = document.getElementById('studiesList');
+  if(!el) return;
+  if(studies.length===0){
+    el.innerHTML = '<p class="empty-note">No pilot entries yet. Add one only once a real early-adopter pilot has started or concluded — this section is not pre-populated.</p>';
+    return;
+  }
+  el.innerHTML = studies.map(s=>`
+    <div class="card" style="margin-bottom:14px;">
+      <h3>${s.orgId} <span class="disclaimer">(public identifier — no company name is ever exported)</span></h3>
+      <div class="sim-controls">
+        <label>Internal use only — real name (never exported)<input type="text" data-s="${s.id}" data-f="orgNamePrivate" value="${s.orgNamePrivate}"></label>
+        ${STUDY_FIELDS_TOP.map(([f,l,t])=>`<label>${l}<input type="${t}" data-s="${s.id}" data-f="${f}" value="${s[f]}"></label>`).join('')}
+      </div>
+      <div class="sim-controls">
+        <label>Pilot Objective<textarea data-s="${s.id}" data-f="objective" style="min-height:44px;">${s.objective}</textarea></label>
+        <label>Pilot Completed?<select data-s="${s.id}" data-f="completed"><option value="false" ${!s.completed?'selected':''}>No</option><option value="true" ${s.completed?'selected':''}>Yes</option></select></label>
+      </div>
+      <p style="font-family:var(--label); font-size:12px; text-transform:uppercase; color:var(--steel); margin:14px 0 6px;">Aggregate KPIs (from participant's own dashboard — Option B)</p>
+      <div class="sim-controls">
+        ${STUDY_FIELDS_KPI.map(([f,l,t])=>`<label>${l}<input type="${t}" data-s="${s.id}" data-f="${f}" value="${s[f]}"></label>`).join('')}
+      </div>
+      <p style="font-family:var(--label); font-size:12px; text-transform:uppercase; color:var(--steel); margin:14px 0 6px;">Evaluation Survey (participant self-report, 1–5)</p>
+      <div class="sim-controls">
+        ${SURVEY_FIELDS.map(([f,l])=>`<label>${l}<input type="number" min="1" max="5" data-s="${s.id}" data-survey="${f}" value="${s.survey[f]}"></label>`).join('')}
+      </div>
+      <label style="display:block; font-family:var(--label); font-size:12px; text-transform:uppercase; color:var(--steel); margin-top:8px;">Comments
+        <textarea data-s="${s.id}" data-survey="comments" style="min-height:44px;">${s.survey.comments}</textarea>
+      </label>
+      <label style="display:block; font-family:var(--label); font-size:12px; text-transform:uppercase; color:var(--steel); margin-top:8px;">Lessons Learned
+        <textarea data-s="${s.id}" data-f="lessonsLearned" style="min-height:44px;">${s.lessonsLearned}</textarea>
+      </label>
+      <div class="toolbar">
+        <button class="btn secondary" data-genreport="${s.id}">Export Evaluation Report (PDF)</button>
+        <button class="del-btn" data-delstudy="${s.id}">&times; Remove Entry</button>
+      </div>
+      <div data-reportbox="${s.id}" style="margin-top:12px;"></div>
+    </div>
+  `).join('');
+
+  el.querySelectorAll('[data-s][data-f]').forEach(input=>{
+    input.addEventListener('input',(e)=>{
+      const id = Number(e.target.dataset.s); const f = e.target.dataset.f;
+      const s = studies.find(x=>x.id===id); if(!s) return;
+      if(f==='completed'){ s.completed = (e.target.value==='true'); }
+      else if(["numReleases","numTickets"].includes(f)){ s[f]=Number(e.target.value)||0; }
+      else { s[f] = e.target.value; }
+    });
+  });
+  el.querySelectorAll('[data-s][data-survey]').forEach(input=>{
+    input.addEventListener('input',(e)=>{
+      const id = Number(e.target.dataset.s); const f = e.target.dataset.survey;
+      const s = studies.find(x=>x.id===id); if(!s) return;
+      s.survey[f] = e.target.value;
+    });
+  });
+  el.querySelectorAll('[data-delstudy]').forEach(btn=>{
+    btn.addEventListener('click',(e)=>{
+      studies = studies.filter(x=>x.id!==Number(e.target.dataset.delstudy));
+      renderStudies();
+    });
+  });
+  el.querySelectorAll('[data-genreport]').forEach(btn=>{
+    btn.addEventListener('click',(e)=>{
+      const id = Number(e.target.dataset.genreport);
+      const s = studies.find(x=>x.id===id); if(!s) return;
+      const box = el.querySelector(`[data-reportbox="${id}"]`);
+      const avgSurvey = (['usability','clarity','ease','decisionImprovement','riskReduction']
+        .map(k=>Number(s.survey[k])||0).filter(v=>v>0));
+      const avgSurveyScore = avgSurvey.length ? (avgSurvey.reduce((a,b)=>a+b,0)/avgSurvey.length).toFixed(1) : '—';
+      box.innerHTML = `
+        <div style="border:3px double var(--ink); padding:28px; background:#fff;">
+          <p style="font-family:var(--label); letter-spacing:.15em; text-transform:uppercase; font-size:12px; color:var(--accent);">MSRMF Field Evaluation — Report</p>
+          <h3 style="font-family:var(--display); font-size:20px; margin:10px 0;">${s.orgId}</h3>
+          <p style="font-size:14px;">Industry: <b>${s.industry||'—'}</b> &nbsp;·&nbsp; Country: <b>${s.country||'—'}</b><br>
+          Pilot period: <b>${s.pilotStart||'—'}</b> to <b>${s.pilotEnd||'—'}</b> &nbsp;·&nbsp; Status: <b>${s.completed?'Completed':'In Progress'}</b></p>
+          <p style="font-size:14px;">Objective: ${s.objective||'—'}</p>
+          <p style="font-size:14px;">Releases: <b>${s.numReleases}</b> &nbsp;·&nbsp; Tickets: <b>${s.numTickets}</b> &nbsp;·&nbsp; Rollback rate: <b>${s.rollbackRate}%</b> &nbsp;·&nbsp; Deployment success: <b>${s.deploymentSuccess}%</b> &nbsp;·&nbsp; RHI: <b>${s.rhi}</b></p>
+          <p style="font-size:14px;">Average participant evaluation score: <b>${avgSurveyScore} / 5</b></p>
+          <p style="font-size:14px;">Lessons learned: ${s.lessonsLearned||'—'}</p>
+          <p style="font-size:12px; color:var(--steel); margin-top:16px;">Report generated by the MSRMF Triage &amp; Release Console — no company name disclosed.</p>
+        </div>
+        <div class="toolbar"><button class="btn secondary" onclick="window.print()">Print / Save as PDF</button></div>
+      `;
+    });
+  });
+}
+
+const addStudyBtn = document.getElementById('addStudy');
+if(addStudyBtn){ addStudyBtn.addEventListener('click', ()=>{ studies.push(newStudy()); renderStudies(); }); }
+
+/* ---- Research Dataset CSV (only from entries you record) ---- */
+const exportResearchBtn = document.getElementById('exportResearchCsv');
+if(exportResearchBtn){
+  exportResearchBtn.addEventListener('click', ()=>{
+    const header = ["Org_ID","Industry","Country","Pilot_Start","Pilot_End","Completed",
+      "Num_Releases","Num_Tickets","P0","P1","P2","P3","Avg_Batch_Size","Rollback_Rate_pct",
+      "Incidents_Total","Avg_Lead_Time_Days","Deployment_Success_pct","RHI",
+      "Usability","Clarity","Ease","Decision_Improvement","Risk_Reduction"];
+    const rows = studies.map(s=>[
+      s.orgId, s.industry, s.country, s.pilotStart, s.pilotEnd, s.completed?"Yes":"No",
+      s.numReleases, s.numTickets, s.p0, s.p1, s.p2, s.p3, s.avgBatchSize, s.rollbackRate,
+      s.incidentsTotal, s.avgLeadTime, s.deploymentSuccess, s.rhi,
+      s.survey.usability, s.survey.clarity, s.survey.ease, s.survey.decisionImprovement, s.survey.riskReduction
+    ]);
+    const csv = [header, ...rows].map(r=>r.join(",")).join("\n");
+    const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download="msrmf_research_dataset.csv";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  });
+}
+
+/* ---- Summary Statistics (computed only from entries you record) ---- */
+function meanOf(arr){ return arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0; }
+function medianOf(arr){ if(!arr.length) return 0; const s=[...arr].sort((a,b)=>a-b); const m=Math.floor(s.length/2); return s.length%2 ? s[m] : (s[m-1]+s[m])/2; }
+function stdevOf(arr){ if(arr.length<2) return 0; const m=meanOf(arr); return Math.sqrt(arr.reduce((a,b)=>a+(b-m)**2,0)/(arr.length-1)); }
+function pearson(xs,ys){
+  const n=xs.length; if(n<2) return null;
+  const mx=meanOf(xs), my=meanOf(ys);
+  let num=0, dx2=0, dy2=0;
+  for(let i=0;i<n;i++){ num += (xs[i]-mx)*(ys[i]-my); dx2 += (xs[i]-mx)**2; dy2 += (ys[i]-my)**2; }
+  if(dx2===0 || dy2===0) return null;
+  return num/Math.sqrt(dx2*dy2);
+}
+const genStatsBtn = document.getElementById('genSummaryStats');
+if(genStatsBtn){
+  genStatsBtn.addEventListener('click', ()=>{
+    const completed = studies.filter(s=>s.completed);
+    const box = document.getElementById('summaryStatsBox');
+    if(completed.length===0){
+      box.innerHTML = '<p class="empty-note">No completed pilots recorded yet — statistics require at least one completed entry.</p>';
+      return;
+    }
+    const fields = [
+      ["numTickets","Number of Tickets"], ["rollbackRate","Rollback Rate (%)"],
+      ["deploymentSuccess","Deployment Success (%)"], ["rhi","RHI Score"], ["avgBatchSize","Avg. Batch Size"]
+    ];
+    let rowsHtml = fields.map(([f,l])=>{
+      const vals = completed.map(s=>Number(s[f])||0);
+      return `<tr><td>${l}</td><td style="font-family:var(--mono);">${meanOf(vals).toFixed(2)}</td><td style="font-family:var(--mono);">${medianOf(vals).toFixed(2)}</td><td style="font-family:var(--mono);">${stdevOf(vals).toFixed(2)}</td></tr>`;
+    }).join('');
+    const corr = pearson(completed.map(s=>Number(s.avgBatchSize)||0), completed.map(s=>Number(s.rollbackRate)||0));
+    box.innerHTML = `
+      <p class="disclaimer">Based on ${completed.length} completed pilot${completed.length===1?'':'s'} recorded in this session. ${completed.length<3 ? 'Note: fewer than 3 data points — treat these figures as directional, not statistically robust.' : ''}</p>
+      <table><thead><tr><th>Metric</th><th>Mean</th><th>Median</th><th>Std. Dev.</th></tr></thead><tbody>${rowsHtml}</tbody></table>
+      <p style="margin-top:10px; font-size:13.5px;">Correlation (Avg. Batch Size vs. Rollback Rate): <b style="font-family:var(--mono);">${corr===null?'n/a (insufficient data)':corr.toFixed(2)}</b></p>
+    `;
+  });
+}
+
+/* =========================================================
+   PUBLICATIONS INDEX
+   ========================================================= */
+let publications = [];
+let seqP = 1;
+const PUB_TYPES = ["Paper","Patent","Conference","GitHub Repo","DOI","Pilot Report"];
+function newPub(){ return {id:seqP++, type:PUB_TYPES[0], title:"", reference:"", date:""}; }
+function renderPubs(){
+  const el = document.getElementById('pubsList');
+  if(!el) return;
+  if(publications.length===0){ el.innerHTML = '<p class="empty-note">No entries yet — add your real publications, patent, conference talks, repo, or pilot reports.</p>'; return; }
+  el.innerHTML = `<table><thead><tr><th style="width:120px;">Type</th><th>Title</th><th>Reference / Link</th><th style="width:110px;">Date</th><th style="width:30px;"></th></tr></thead><tbody>
+    ${publications.map(p=>`
+      <tr>
+        <td><select data-p="${p.id}" data-f="type">${PUB_TYPES.map(t=>`<option ${t===p.type?'selected':''}>${t}</option>`).join('')}</select></td>
+        <td><input type="text" data-p="${p.id}" data-f="title" value="${p.title}"></td>
+        <td><input type="text" data-p="${p.id}" data-f="reference" value="${p.reference}"></td>
+        <td><input type="date" data-p="${p.id}" data-f="date" value="${p.date}"></td>
+        <td><button class="del-btn" data-delpub="${p.id}">&times;</button></td>
+      </tr>
+    `).join('')}
+  </tbody></table>`;
+  el.querySelectorAll('[data-p]').forEach(input=>{
+    input.addEventListener('input',(e)=>{
+      const id = Number(e.target.dataset.p); const f = e.target.dataset.f;
+      const p = publications.find(x=>x.id===id); if(!p) return;
+      p[f] = e.target.value;
+    });
+  });
+  el.querySelectorAll('[data-delpub]').forEach(btn=>{
+    btn.addEventListener('click',(e)=>{
+      publications = publications.filter(x=>x.id!==Number(e.target.dataset.delpub));
+      renderPubs();
+    });
+  });
+}
+const addPubBtn = document.getElementById('addPub');
+if(addPubBtn){ addPubBtn.addEventListener('click', ()=>{ publications.push(newPub()); renderPubs(); }); }
+
+/* =========================================================
+   CERTIFICATE GENERATOR
+   ========================================================= */
+
+/* =========================================================
+   SEND RESULTS BY EMAIL (via EmailJS — no server required)
+   ---------------------------------------------------------
+   SETUP REQUIRED (one-time, ~10 minutes) before this button works:
+   1. Create a free account at https://www.emailjs.com
+   2. Add an Email Service connected to liviasbm@hotmail.com (Outlook/Hotmail is supported).
+   3. Create an Email Template with variables: {{from_org}}, {{sent_at}}, {{session_data}}
+      Recipient field in the template should be set to: liviasbm@hotmail.com
+   4. Copy your Public Key, Service ID, and Template ID from the EmailJS dashboard
+      and paste them into the three constants below, replacing the placeholder text.
+   ========================================================= */
+const EMAILJS_PUBLIC_KEY  = "REPLACE_WITH_YOUR_PUBLIC_KEY";
+const EMAILJS_SERVICE_ID  = "REPLACE_WITH_YOUR_SERVICE_ID";
+const EMAILJS_TEMPLATE_ID = "REPLACE_WITH_YOUR_TEMPLATE_ID";
+
+if(window.emailjs && EMAILJS_PUBLIC_KEY.indexOf("REPLACE_WITH") !== 0){
+  emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+}
+
+const emailSendBtn = document.getElementById('emailSend');
+if(emailSendBtn){
+  emailSendBtn.addEventListener('click', ()=>{
+    if(EMAILJS_PUBLIC_KEY.indexOf("REPLACE_WITH") === 0){
+      alert("Email sending isn't configured yet. See the setup instructions in the page source (search for EMAILJS_PUBLIC_KEY), or use 'Save Session' and email the file manually to liviasbm@hotmail.com in the meantime.");
+      return;
+    }
+    const orgLabel = studies.length ? studies[studies.length-1].orgId : "Unlabeled session";
+    const payload = JSON.stringify(currentState());
+    if(payload.length > 45000){
+      alert("This session's data is large. Please use 'Save Session (JSON)' instead and email the downloaded file manually, since automatic sending has a size limit.");
+      return;
+    }
+    emailSendBtn.disabled = true;
+    emailSendBtn.textContent = "Sending…";
+    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      to_email: "liviasbm@hotmail.com",
+      from_org: orgLabel,
+      sent_at: new Date().toISOString(),
+      session_data: payload
+    }).then(()=>{
+      emailSendBtn.textContent = "✓ Sent";
+      setTimeout(()=>{ emailSendBtn.textContent = "📧 Send Results by Email"; emailSendBtn.disabled = false; }, 3000);
+    }, (err)=>{
+      console.error(err);
+      alert("Could not send automatically. Please use 'Save Session' and email the downloaded file to liviasbm@hotmail.com instead.");
+      emailSendBtn.textContent = "📧 Send Results by Email";
+      emailSendBtn.disabled = false;
+    });
+  });
+}
+
+/* =========================================================
+   SAVE / LOAD SESSION (includes studies + publications)
+   ========================================================= */
+function currentState(){
+  return { tickets, batches, studies, publications, seqT, seqB, seqS, seqP };
+}
+function applyState(state){
+  tickets = state.tickets || [];
+  batches = state.batches || [];
+  studies = state.studies || [];
+  publications = state.publications || [];
+  seqT = state.seqT || (tickets.length ? Math.max(...tickets.map(t=>t.id))+1 : 1);
+  seqB = state.seqB || (batches.length ? Math.max(...batches.map(b=>b.id))+1 : 1);
+  seqS = state.seqS || (studies.length ? Math.max(...studies.map(s=>s.id))+1 : 1);
+  seqP = state.seqP || (publications.length ? Math.max(...publications.map(p=>p.id))+1 : 1);
+  renderAll();
+}
+const saveBtn = document.getElementById('saveSession');
+if(saveBtn){
+  saveBtn.addEventListener('click', ()=>{
+    const stamp = new Date().toISOString().slice(0,10);
+    const blob = new Blob([JSON.stringify(currentState(), null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = "msrmf_session_"+stamp+".json";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  });
+}
+const loadBtn = document.getElementById('loadSessionBtn');
+const loadFile = document.getElementById('loadSessionFile');
+if(loadBtn && loadFile){
+  loadBtn.addEventListener('click', ()=> loadFile.click());
+  loadFile.addEventListener('change', (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev)=>{
+      try{ applyState(JSON.parse(ev.target.result)); alert("Session loaded successfully."); }
+      catch(err){ alert("Could not read this file — make sure it is a session file saved from this tool."); }
+    };
+    reader.readAsText(file);
+    loadFile.value = "";
+  });
+}
+
+
+document.getElementById('loadSample1').click();
+</script>
+</body>
+</html>
