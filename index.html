@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>MSRMF-TRC-002 — Triage &amp; Release Console</title>
+<title>MSRMF-TRC-002 — Reference Tool</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -86,7 +86,13 @@
   .card{background:var(--panel); border:1px solid var(--line-strong); padding:16px 20px; margin-bottom:18px;}
   .card h3{margin:0 0 12px; font-family:var(--label); font-size:13.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--steel);}
 
-  .gate-complete-bar{display:flex; justify-content:flex-end; align-items:center; margin-top:6px; gap:12px;}
+  .gate-complete-bar{
+    display:flex; justify-content:space-between; align-items:center; margin-top:22px; gap:14px;
+    background:var(--accent-soft); border:2px solid var(--accent); padding:16px 20px;
+  }
+  .gate-complete-bar .complete-label{font-family:var(--label); font-size:14px; font-weight:700; color:var(--accent); display:flex; align-items:center; gap:8px;}
+  .gate-complete-bar .complete-label .check{width:24px; height:24px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0;}
+  .gate-complete-bar button.btn{font-size:15px; padding:12px 26px;}
 
   .welcome-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
   .checklist-simple{list-style:none; padding:0; margin:0;}
@@ -161,10 +167,7 @@
         <text x="19" y="25" font-family="Calibri, 'Segoe UI', Arial, sans-serif" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">M</text>
       </svg>
 
-      <div><div class="word">MSRMF<span style="font-size:10px; vertical-align:super;">™</span></div><div class="sub">Release Console</div></div>
-    </div>
-    <div style="padding:0 18px 14px; margin-top:-6px;">
-      <span style="display:inline-block; font-family:var(--label); font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; color:#7fa4bc; border:1px solid rgba(255,255,255,.25); padding:2px 8px; border-radius:2px;">Patent Pending</span>
+      <div><div class="word">MSRMF<span style="font-size:10px; vertical-align:super;">™</span></div><div class="sub">Reference Tool</div></div>
     </div>
     <nav class="sidebar-nav" id="tabs">
       <button data-tab="welcome" class="active">Welcome</button>
@@ -188,8 +191,8 @@
   <div class="content-area">
     <div class="content-header">
       <div class="content-title">
-        <h1>Triage &amp; Release Console</h1>
-        <p>Reference implementation of a gated engineering release-governance methodology for multi-site automation programs.</p>
+        <h1>MSRMF Reference Tool</h1>
+        <p>Reference implementation of the gated triage-and-release methodology described in the accompanying paper.</p>
       </div>
       <div class="meta-pills">
         <span class="meta-pill">DWG NO: <b>MSRMF&#8209;TRC&#8209;002</b></span>
@@ -216,7 +219,8 @@
   <section class="tabpanel active" id="tab-welcome">
     <div class="method-panel">
       <h2>Welcome</h2>
-      <p>Thank you for testing this pilot version of the MSRMF Triage &amp; Release Console.</p>
+      <p>Thank you for testing this reference implementation of the MSRMF framework.</p>
+      <p style="font-size:13px; color:var(--steel);">This tool was developed to support pilot evaluations of the framework described in the accompanying research paper.</p>
       <p><b>Estimated time:</b> 10–15 minutes.</p>
     </div>
     <div class="welcome-grid">
@@ -289,7 +293,7 @@
   <section class="tabpanel" id="tab-gate1">
     <div class="method-panel">
       <h2>Gate 1 — Triage</h2>
-      <p><b>Purpose:</b> classify each change request. Priority is calculated automatically. Fill in the inclusion/exclusion rationale.</p>
+      <p>Classify each change. Priority is calculated automatically.</p>
       <details class="formula-toggle"><summary>Priority Formula</summary>
         <div class="formula">priority&nbsp;=&nbsp;(severity_weight&nbsp;×&nbsp;3)&nbsp;+&nbsp;(scope_weight&nbsp;×&nbsp;2)&nbsp;−&nbsp;complexity</div>
         <p style="margin-top:8px; font-size:13px;">Severity weights: P0=4, P1=3, P2=2, P3=1. Scope weights: Network=4, Client=3, Site=2, Single Unit=1. Bands — <b>Fast-Track</b> (≥18), <b>Standard Review</b> (10–17), <b>Deferred</b> (&lt;10).</p>
@@ -313,14 +317,14 @@
         <button class="btn accent" id="exportCsv1">Export CSV</button>
       </div>
     </div>
-    <div class="gate-complete-bar"><button class="btn accent" data-jump="gate2">Continue → Gate 2</button></div>
+    <div class="gate-complete-bar"><span class="complete-label"><span class="check">✓</span>Gate 1 Complete</span><button class="btn accent" data-jump="gate2">Continue → Gate 2</button></div>
   </section>
 
   <!-- GATE 2 -->
   <section class="tabpanel" id="tab-gate2">
     <div class="method-panel">
       <h2>Gate 2 — Validation</h2>
-      <p><b>Purpose:</b> technical review decides if a triaged ticket is sound for release, and records who requested it — surfacing any tension between operational pressure and engineering judgment.</p>
+      <p>Technical review decides what proceeds. Who requested it is recorded too.</p>
     </div>
     <div class="card">
       <h3>Technical Review</h3>
@@ -333,27 +337,27 @@
         <tbody id="gate2Body"></tbody>
       </table>
     </div>
-    <div class="gate-complete-bar"><button class="btn accent" data-jump="gate3">Continue → Gate 3</button></div>
+    <div class="gate-complete-bar"><span class="complete-label"><span class="check">✓</span>Gate 2 Complete</span><button class="btn accent" data-jump="gate3">Continue → Gate 3</button></div>
   </section>
 
   <!-- GATE 3 -->
   <section class="tabpanel" id="tab-gate3">
     <div class="method-panel">
       <h2>Gate 3 — Authorization</h2>
-      <p><b>Purpose:</b> only Gate-2-approved tickets are eligible here. All four checklist items must be confirmed before final authorization — readiness is a checklist, not one subjective sign-off.</p>
+      <p>Approved tickets only. All four checklist items are required to authorize.</p>
     </div>
     <div class="card">
       <h3>Authorization Checklist</h3>
       <div id="gate3List"></div>
     </div>
-    <div class="gate-complete-bar"><button class="btn accent" data-jump="deploy">Continue → Deployment</button></div>
+    <div class="gate-complete-bar"><span class="complete-label"><span class="check">✓</span>Gate 3 Complete</span><button class="btn accent" data-jump="deploy">Continue → Deployment</button></div>
   </section>
 
   <!-- DEPLOYMENT -->
   <section class="tabpanel" id="tab-deploy">
     <div class="method-panel">
       <h2>Deployment</h2>
-      <p><b>Purpose:</b> group authorized tickets into batches for coordinated multi-site rollout, tracking scope, timing, status, and incident/rollback outcomes.</p>
+      <p>Group authorized tickets into batches for coordinated rollout.</p>
     </div>
     <div class="card">
       <h3>Release Batches</h3>
@@ -371,27 +375,27 @@
         <button class="btn secondary" id="loadSampleBatch">Load Sample Batches</button>
       </div>
     </div>
-    <div class="gate-complete-bar"><button class="btn accent" data-jump="monitor">Continue → Monitoring</button></div>
+    <div class="gate-complete-bar"><span class="complete-label"><span class="check">✓</span>Deployment Complete</span><button class="btn accent" data-jump="monitor">Continue → Monitoring</button></div>
   </section>
 
   <!-- MONITORING -->
   <section class="tabpanel" id="tab-monitor">
     <div class="method-panel">
       <h2>Monitoring</h2>
-      <p><b>Purpose:</b> a cumulative timeline of deployed batches, with incident logging for post-release tracking.</p>
+      <p>A timeline of deployed batches, with incident logging.</p>
     </div>
     <div class="card">
       <h3>Deployment Timeline</h3>
       <div id="timelineView"></div>
     </div>
-    <div class="gate-complete-bar"><button class="btn accent" data-jump="results">Continue → Results &amp; KPIs</button></div>
+    <div class="gate-complete-bar"><span class="complete-label"><span class="check">✓</span>Monitoring Complete</span><button class="btn accent" data-jump="results">Continue → Results &amp; KPIs</button></div>
   </section>
 
   <!-- RESULTS / KPI -->
   <section class="tabpanel" id="tab-results">
     <div class="method-panel">
       <h2>Results &amp; KPI Engine</h2>
-      <p><b>Purpose:</b> all figures below are computed automatically from the tickets and batches you entered in this session.</p>
+      <p>Computed automatically from what you entered above.</p>
     </div>
     <div class="card">
       <h3>Core KPIs</h3>
@@ -409,8 +413,26 @@
       </div>
     </div>
     <div class="gate-complete-bar">
-      <button class="btn secondary" data-jump="risk">Explore Risk &amp; Simulation</button>
-      <button class="btn secondary" data-jump="studies">Share Feedback</button>
+      <span class="complete-label"><span class="check">✓</span>Results Ready</span>
+      <span style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn secondary" data-jump="risk">Explore Risk &amp; Simulation</button>
+        <button class="btn accent" data-jump="thankyou">Finish →</button>
+      </span>
+    </div>
+  </section>
+
+  <!-- THANK YOU -->
+  <section class="tabpanel" id="tab-thankyou">
+    <div class="method-panel">
+      <h2>Thank You</h2>
+      <p>Thank you for evaluating the MSRMF reference tool.</p>
+    </div>
+    <div class="card">
+      <p style="font-size:15px;">If this pilot was conducted inside your organization, please consider completing an entry in <b>Field Evaluation</b> — your feedback helps improve future versions of the framework.</p>
+      <div class="toolbar">
+        <button class="btn accent" data-jump="studies">Go to Field Evaluation</button>
+        <button class="btn secondary" data-jump="welcome">Back to Welcome</button>
+      </div>
     </div>
   </section>
 
@@ -418,7 +440,7 @@
   <section class="tabpanel" id="tab-risk">
     <div class="method-panel">
       <h2>Risk Engine</h2>
-      <p><b>Purpose:</b> a rule-based (non-statistical) estimate of overall release risk, from open high-severity tickets, average complexity, average scope, and rollback history.</p>
+      <p>A rule-based, non-statistical estimate of overall release risk.</p>
     </div>
     <div class="card">
       <h3>Current Overall Risk</h3>
@@ -440,7 +462,7 @@
   <section class="tabpanel" id="tab-kb">
     <div class="method-panel">
       <h2>Knowledge Base</h2>
-      <p><b>Purpose:</b> search and filter recorded decisions — e.g. all P0 tickets, or all batches with a rollback.</p>
+      <p>Search and filter the decisions recorded above.</p>
     </div>
     <div class="card">
       <h3>Filters</h3>
@@ -490,8 +512,7 @@
     </main>
 
     <footer>
-      <p>Pilot reference implementation of a gated, generalized multi-site engineering release-governance methodology. All computation is client-side; no data is transmitted, stored server-side, or aggregated across organizations.</p>
-      <p>MSRMF™ is an independently developed framework; a related patent application is currently pending.</p>
+      <p>Reference implementation accompanying the MSRMF research paper. All computation is client-side; no data is transmitted, stored server-side, or aggregated across organizations.</p>
     </footer>
   </div>
 </div>
@@ -553,7 +574,15 @@ function renderStepper(activeTab){
 }
 function goToTab(tabId){
   const btn = document.querySelector('.sidebar-nav button[data-tab="'+tabId+'"]');
-  if(btn) btn.click();
+  if(btn){ btn.click(); return; }
+  // Fallback for tabs with no sidebar entry (e.g. Thank You)
+  document.querySelectorAll('.sidebar-nav button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tabpanel').forEach(p=>p.classList.remove('active'));
+  const panel = document.getElementById('tab-'+tabId);
+  if(panel) panel.classList.add('active');
+  renderStepper(tabId);
+  renderAll();
+  window.scrollTo(0,0);
 }
 document.getElementById('tabs').addEventListener('click',(e)=>{
   if(e.target.tagName!=='BUTTON') return;
@@ -997,7 +1026,7 @@ function renderStudies(){
           <p style="font-size:14px;">Releases: <b>${s.numReleases}</b> &nbsp;·&nbsp; Tickets: <b>${s.numTickets}</b> &nbsp;·&nbsp; Rollback rate: <b>${s.rollbackRate}%</b> &nbsp;·&nbsp; Deployment success: <b>${s.deploymentSuccess}%</b> &nbsp;·&nbsp; RHI: <b>${s.rhi}</b></p>
           <p style="font-size:14px;">Average participant evaluation score: <b>${avgSurveyScore} / 5</b></p>
           <p style="font-size:14px;">Lessons learned: ${s.lessonsLearned||'—'}</p>
-          <p style="font-size:12px; color:var(--steel); margin-top:16px;">Report generated by the MSRMF Triage &amp; Release Console — no company name disclosed.</p>
+          <p style="font-size:12px; color:var(--steel); margin-top:16px;">Report generated by the MSRMF Reference Tool — no company name disclosed.</p>
         </div>
         <div class="toolbar"><button class="btn secondary" onclick="window.print()">Print / Save as PDF</button></div>
       `;
