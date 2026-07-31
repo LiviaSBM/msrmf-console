@@ -1,4 +1,4 @@
-# MSRMF – Multi-Site Robotic Release Management Framework
+# MSRMF - Multi-Site Robotic Release Management Framework
 
 **Reference implementation of a gated release-governance framework for distributed robotic and industrial automation systems.**
 
@@ -16,12 +16,12 @@ Unlike traditional software-only deployments, changes in robotic systems may aff
 
 The MSRMF addresses this problem through a structured release-governance process based on sequential decision gates:
 
-1. **Gate 1 — Triage**
-2. **Gate 2 — Technical Validation**
-3. **Gate 3 — Release Authorization**
-4. **Controlled Multi-Site Deployment**
-5. **Operational Monitoring**
-6. **Results & KPI Evaluation**
+1. **Gate 1 - Triage**
+2. **Gate 2 - Validation**
+3. **Gate 3 - Authorization**
+4. **Deployment**
+5. **Monitoring**
+6. **Results & KPIs**
 
 The framework emphasizes documented engineering decisions, controlled rollout strategies, rollback readiness, and release traceability.
 
@@ -40,7 +40,7 @@ The framework emphasizes documented engineering decisions, controlled rollout st
 - Scenario simulation ("What-if")
 - Knowledge base
 - Pilot evaluation tracking
-- Publication/evidence registry
+- Research & publications registry
 
 ---
 
@@ -79,10 +79,14 @@ Current implementation:
 - HTML5
 - CSS3
 - Vanilla JavaScript
+- [EmailJS](https://www.emailjs.com/) (client-side email delivery, optional)
 
-No external backend is required.
+Infrastructure:
 
-All data remains in the user's browser unless explicitly exported or shared.
+- Hosted on GitHub Pages
+- Deployed via GitHub Actions (CI/CD)
+
+All computation is client-side. Data remains in the user's browser unless explicitly exported (JSON download) or shared (email send via EmailJS, which requires explicit user consent before transmission).
 
 ---
 
@@ -137,8 +141,9 @@ Please contact the author before commercial use.
 
 Mechanical & Industrial Engineer
 
-Project Manager – Industrial Automation
+Project Manager - Industrial Automation
 
 OIQ Licensed Engineer
 
-GitHub Issues may also be used for questions, suggestions, and bug reports.
+GitHub Issues may be used for questions, suggestions, and bug reports:
+https://github.com/LiviaSBM/msrmf-console/issues
