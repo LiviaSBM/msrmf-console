@@ -35,9 +35,10 @@ jobs:
 
       - name: Inject build metadata
         run: |
-          export BUILD_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
-          export BUILD_DATE=$(date -u +"%d/%m/%Y")
-          export BUILD_COMMIT=$(echo "${{ github.sha }}" | cut -c1-7)
+          BUILD_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
+          BUILD_DATE=$(date -u +"%d/%m/%Y")
+          BUILD_COMMIT=$(echo "${{ github.sha }}" | cut -c1-7)
+          export BUILD_VERSION BUILD_DATE BUILD_COMMIT
           envsubst '${BUILD_VERSION} ${BUILD_DATE} ${BUILD_COMMIT}' < index.html > index.tmp
           mv index.tmp index.html
 
