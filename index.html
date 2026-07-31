@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://api.emailjs.com;">
 <title>MSRMF-TRC-002 — Reference Tool</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" integrity="sha384-SALc35EccAf6RzGw4iNsyj7kTPr33K7RoGzYu+7heZhT8s0GZouafRiCg1qy44AS" crossorigin="anonymous"></script>
 <!-- Calibri Light is a licensed Microsoft font; it renders on systems that have it installed (most Windows/Office machines) via the fallback stack below. -->
 <style>
   :root{
@@ -561,6 +562,12 @@
 
 <script>
 
+// Sanitize user input before inserting into HTML to prevent XSS
+function esc(str){
+  if(str === null || str === undefined) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
 const SESSION_TOKEN = Math.random().toString(36).slice(2) + Date.now().toString(36);
 const CATS = ["Software","Hardware","Configuration","Safety","Documentation"];
 const SEVERITIES = ["P0","P1","P2","P3"];
@@ -656,9 +663,9 @@ function renderGate1(){
       <td><select data-f="category" data-id="${t.id}">${CATS.map(c=>`<option ${c===t.category?'selected':''}>${c}</option>`).join('')}</select></td>
       <td><select data-f="severity" data-id="${t.id}">${SEVERITIES.map(c=>`<option ${c===t.severity?'selected':''}>${c}</option>`).join('')}</select></td>
       <td><select data-f="scope" data-id="${t.id}">${SCOPES.map(c=>`<option ${c===t.scope?'selected':''}>${c}</option>`).join('')}</select></td>
-      <td><input type="number" min="0" max="5" data-f="complexity" data-id="${t.id}" value="${t.complexity}"></td>
-      <td><input type="text" data-f="reasonInclusion" data-id="${t.id}" value="${t.reasonInclusion}"></td>
-      <td><input type="text" data-f="reasonExclusion" data-id="${t.id}" value="${t.reasonExclusion}"></td>
+      <td><input type="number" min="0" max="5" data-f="complexity" data-id="${t.id}" value="${esc(t.complexity)}"></td>
+      <td><input type="text" data-f="reasonInclusion" data-id="${t.id}" value="${esc(t.reasonInclusion)}"></td>
+      <td><input type="text" data-f="reasonExclusion" data-id="${t.id}" value="${esc(t.reasonExclusion)}"></td>
       <td style="font-family:var(--mono); font-weight:600;">${p}</td>
       <td><span class="band-tag ${b.cls}">${b.name}</span></td>
       <td><button class="del-btn" data-id="${t.id}">&times;</button></td>
@@ -694,9 +701,9 @@ function renderGate2(){
       <td style="font-family:var(--mono);">T-${String(t.id).padStart(3,'0')}</td>
       <td><select data-f="requestedBy" data-id="${t.id}">${REQUESTERS.map(c=>`<option ${c===t.requestedBy?'selected':''}>${c}</option>`).join('')}</select></td>
       <td><select data-f="technicalReview" data-id="${t.id}">${REVIEWS.map(c=>`<option ${c===t.technicalReview?'selected':''}>${c}</option>`).join('')}</select></td>
-      <td><input type="text" data-f="releaseManagerDecision" data-id="${t.id}" value="${t.releaseManagerDecision}" placeholder="Name"></td>
-      <td><input type="date" data-f="decisionDate" data-id="${t.id}" value="${t.decisionDate}"></td>
-      <td><textarea data-f="comments" data-id="${t.id}">${t.comments}</textarea></td>
+      <td><input type="text" data-f="releaseManagerDecision" data-id="${t.id}" value="${esc(t.releaseManagerDecision)}" placeholder="Name"></td>
+      <td><input type="date" data-f="decisionDate" data-id="${t.id}" value="${esc(t.decisionDate)}"></td>
+      <td><textarea data-f="comments" data-id="${t.id}">${esc(t.comments)}</textarea></td>
     `;
     tbody.appendChild(tr);
   });
@@ -719,7 +726,7 @@ function renderGate3(){
     const auth = finalAuthOf(t);
     return `
       <div class="card" style="margin-bottom:10px;">
-        <h3>T-${String(t.id).padStart(3,'0')} — ${t.category} / ${t.severity} / ${t.scope}</h3>
+        <h3>T-${String(t.id).padStart(3,'0')} — ${esc(t.category)} / ${esc(t.severity)} / ${esc(t.scope)}</h3>
         ${['rollbackPlan','safetyApproved','documentationComplete','operationsReady'].map(k=>{
           const labels = {rollbackPlan:"Rollback Plan", safetyApproved:"Safety Approved", documentationComplete:"Documentation Complete", operationsReady:"Operations Ready"};
           return `<div class="checklist-row">
@@ -754,14 +761,14 @@ function renderDeploy(){
     const options = authorized.map(t=>`<option value="${t.id}" ${b.ticketIds.includes(t.id)?'selected':''}>T-${String(t.id).padStart(3,'0')}</option>`).join('');
     tbody.innerHTML += `
       <tr>
-        <td><input type="text" data-f="name" data-id="${b.id}" value="${b.name}"></td>
+        <td><input type="text" data-f="name" data-id="${b.id}" value="${esc(b.name)}"></td>
         <td><select multiple data-f="ticketIds" data-id="${b.id}" size="3">${options}</select></td>
-        <td><input type="number" data-f="sitesCount" data-id="${b.id}" value="${b.sitesCount}"></td>
-        <td><input type="date" data-f="date" data-id="${b.id}" value="${b.date}"></td>
+        <td><input type="number" data-f="sitesCount" data-id="${b.id}" value="${esc(b.sitesCount)}"></td>
+        <td><input type="date" data-f="date" data-id="${b.id}" value="${esc(b.date)}"></td>
         <td><select data-f="status" data-id="${b.id}">${["Planned","In Progress","Completed","Rolled Back"].map(s=>`<option ${s===b.status?'selected':''}>${s}</option>`).join('')}</select></td>
-        <td><input type="number" data-f="incidentsCount" data-id="${b.id}" value="${b.incidentsCount}"></td>
+        <td><input type="number" data-f="incidentsCount" data-id="${b.id}" value="${esc(b.incidentsCount)}"></td>
         <td><input type="checkbox" data-f="rollback" data-id="${b.id}" ${b.rollback?'checked':''}></td>
-        <td><input type="number" data-f="timeDays" data-id="${b.id}" value="${b.timeDays}"></td>
+        <td><input type="number" data-f="timeDays" data-id="${b.id}" value="${esc(b.timeDays)}"></td>
         <td><button class="del-btn" data-delbatch="${b.id}">&times;</button></td>
       </tr>
     `;
@@ -794,8 +801,8 @@ function renderMonitor(){
     cum += (b.timeDays||0);
     return `
       <div class="card" style="margin-bottom:10px;">
-        <h3>${b.name} — ${b.status}</h3>
-        <p style="font-size:13.5px;">Sites: <b>${b.sitesCount}</b> · Date: <b>${b.date||'—'}</b> · Duration: <b>${b.timeDays}d</b> · Cumulative: <b>${cum}d</b></p>
+        <h3>${esc(b.name)} — ${esc(b.status)}</h3>
+        <p style="font-size:13.5px;">Sites: <b>${b.sitesCount}</b> · Date: <b>${esc(b.date)||'—'}</b> · Duration: <b>${b.timeDays}d</b> · Cumulative: <b>${cum}d</b></p>
         <p style="font-size:13.5px;">Incidents logged: <b>${b.incidentsCount}</b> ${b.rollback ? '· <span style="color:var(--accent);">ROLLBACK OCCURRED</span>' : ''}</p>
       </div>
     `;
@@ -898,10 +905,10 @@ document.getElementById('kbSearch').addEventListener('click',()=>{
   el.innerHTML = `
     <h3 style="font-family:var(--label); font-size:13px; text-transform:uppercase; color:var(--steel);">Matching Tickets (${filteredTickets.length})</h3>
     <table><thead><tr><th>ID</th><th>Category</th><th>Severity</th><th>Scope</th><th>Band</th></tr></thead>
-    <tbody>${filteredTickets.map(t=>`<tr><td style="font-family:var(--mono);">T-${String(t.id).padStart(3,'0')}</td><td>${t.category}</td><td>${t.severity}</td><td>${t.scope}</td><td>${bandOf(priorityOf(t)).name}</td></tr>`).join('') || '<tr><td colspan="5" class="empty-note">No matches.</td></tr>'}</tbody></table>
+    <tbody>${filteredTickets.map(t=>`<tr><td style="font-family:var(--mono);">T-${String(t.id).padStart(3,'0')}</td><td>${esc(t.category)}</td><td>${esc(t.severity)}</td><td>${esc(t.scope)}</td><td>${bandOf(priorityOf(t)).name}</td></tr>`).join('') || '<tr><td colspan="5" class="empty-note">No matches.</td></tr>'}</tbody></table>
     <h3 style="font-family:var(--label); font-size:13px; text-transform:uppercase; color:var(--steel); margin-top:16px;">Matching Batches (${filteredBatches.length})</h3>
     <table><thead><tr><th>Name</th><th>Status</th><th>Rollback</th><th>Incidents</th></tr></thead>
-    <tbody>${filteredBatches.map(b=>`<tr><td>${b.name}</td><td>${b.status}</td><td>${b.rollback?'Yes':'No'}</td><td>${b.incidentsCount}</td></tr>`).join('') || '<tr><td colspan="4" class="empty-note">No matches.</td></tr>'}</tbody></table>
+    <tbody>${filteredBatches.map(b=>`<tr><td>${esc(b.name)}</td><td>${esc(b.status)}</td><td>${b.rollback?'Yes':'No'}</td><td>${b.incidentsCount}</td></tr>`).join('') || '<tr><td colspan="4" class="empty-note">No matches.</td></tr>'}</tbody></table>
   `;
 });
 
@@ -1005,28 +1012,28 @@ function renderStudies(){
   }
   el.innerHTML = studies.map(s=>`
     <div class="card" style="margin-bottom:14px;">
-      <h3>${s.orgId} <span class="disclaimer">(public identifier — no company name is ever exported)</span></h3>
+      <h3>${esc(s.orgId)} <span class="disclaimer">(public identifier — no company name is ever exported)</span></h3>
       <div class="sim-controls">
-        <label>Internal use only — real name (never exported)<input type="text" data-s="${s.id}" data-f="orgNamePrivate" value="${s.orgNamePrivate}"></label>
-        ${STUDY_FIELDS_TOP.map(([f,l,t])=>`<label>${l}<input type="${t}" data-s="${s.id}" data-f="${f}" value="${s[f]}"></label>`).join('')}
+        <label>Internal use only — real name (never exported)<input type="text" data-s="${s.id}" data-f="orgNamePrivate" value="${esc(s.orgNamePrivate)}"></label>
+        ${STUDY_FIELDS_TOP.map(([f,l,t])=>`<label>${l}<input type="${t}" data-s="${s.id}" data-f="${f}" value="${esc(s[f])}"></label>`).join('')}
       </div>
       <div class="sim-controls">
-        <label>Pilot Objective<textarea data-s="${s.id}" data-f="objective" style="min-height:44px;">${s.objective}</textarea></label>
+        <label>Pilot Objective<textarea data-s="${s.id}" data-f="objective" style="min-height:44px;">${esc(s.objective)}</textarea></label>
         <label>Pilot Completed?<select data-s="${s.id}" data-f="completed"><option value="false" ${!s.completed?'selected':''}>No</option><option value="true" ${s.completed?'selected':''}>Yes</option></select></label>
       </div>
       <p style="font-family:var(--label); font-size:12px; text-transform:uppercase; color:var(--steel); margin:14px 0 6px;">Aggregate KPIs (from participant's own dashboard — Option B)</p>
       <div class="sim-controls">
-        ${STUDY_FIELDS_KPI.map(([f,l,t])=>`<label>${l}<input type="${t}" data-s="${s.id}" data-f="${f}" value="${s[f]}"></label>`).join('')}
+        ${STUDY_FIELDS_KPI.map(([f,l,t])=>`<label>${l}<input type="${t}" data-s="${s.id}" data-f="${f}" value="${esc(s[f])}"></label>`).join('')}
       </div>
       <p style="font-family:var(--label); font-size:12px; text-transform:uppercase; color:var(--steel); margin:14px 0 6px;">Evaluation Survey (participant self-report, 1–5)</p>
       <div class="sim-controls">
-        ${SURVEY_FIELDS.map(([f,l])=>`<label>${l}<input type="number" min="1" max="5" data-s="${s.id}" data-survey="${f}" value="${s.survey[f]}"></label>`).join('')}
+        ${SURVEY_FIELDS.map(([f,l])=>`<label>${l}<input type="number" min="1" max="5" data-s="${s.id}" data-survey="${f}" value="${esc(s.survey[f])}"></label>`).join('')}
       </div>
       <label style="display:block; font-family:var(--label); font-size:12px; text-transform:uppercase; color:var(--steel); margin-top:8px;">Comments
-        <textarea data-s="${s.id}" data-survey="comments" style="min-height:44px;">${s.survey.comments}</textarea>
+        <textarea data-s="${s.id}" data-survey="comments" style="min-height:44px;">${esc(s.survey.comments)}</textarea>
       </label>
       <label style="display:block; font-family:var(--label); font-size:12px; text-transform:uppercase; color:var(--steel); margin-top:8px;">Lessons Learned
-        <textarea data-s="${s.id}" data-f="lessonsLearned" style="min-height:44px;">${s.lessonsLearned}</textarea>
+        <textarea data-s="${s.id}" data-f="lessonsLearned" style="min-height:44px;">${esc(s.lessonsLearned)}</textarea>
       </label>
       <div class="toolbar">
         <button class="btn secondary" data-genreport="${s.id}">Export Evaluation Report (PDF)</button>
@@ -1069,13 +1076,13 @@ function renderStudies(){
       box.innerHTML = `
         <div style="border:3px double var(--ink); padding:28px; background:#fff;">
           <p style="font-family:var(--label); letter-spacing:.15em; text-transform:uppercase; font-size:12px; color:var(--accent);">MSRMF Field Evaluation — Report</p>
-          <h3 style="font-family:var(--display); font-size:20px; margin:10px 0;">${s.orgId}</h3>
-          <p style="font-size:14px;">Industry: <b>${s.industry||'—'}</b> &nbsp;·&nbsp; Country: <b>${s.country||'—'}</b><br>
-          Pilot period: <b>${s.pilotStart||'—'}</b> to <b>${s.pilotEnd||'—'}</b> &nbsp;·&nbsp; Status: <b>${s.completed?'Completed':'In Progress'}</b></p>
-          <p style="font-size:14px;">Objective: ${s.objective||'—'}</p>
+          <h3 style="font-family:var(--display); font-size:20px; margin:10px 0;">${esc(s.orgId)}</h3>
+          <p style="font-size:14px;">Industry: <b>${esc(s.industry)||'—'}</b> &nbsp;·&nbsp; Country: <b>${esc(s.country)||'—'}</b><br>
+          Pilot period: <b>${esc(s.pilotStart)||'—'}</b> to <b>${esc(s.pilotEnd)||'—'}</b> &nbsp;·&nbsp; Status: <b>${s.completed?'Completed':'In Progress'}</b></p>
+          <p style="font-size:14px;">Objective: ${esc(s.objective)||'—'}</p>
           <p style="font-size:14px;">Releases: <b>${s.numReleases}</b> &nbsp;·&nbsp; Tickets: <b>${s.numTickets}</b> &nbsp;·&nbsp; Rollback rate: <b>${s.rollbackRate}%</b> &nbsp;·&nbsp; Deployment success: <b>${s.deploymentSuccess}%</b> &nbsp;·&nbsp; RHI: <b>${s.rhi}</b></p>
           <p style="font-size:14px;">Average participant evaluation score: <b>${avgSurveyScore} / 5</b></p>
-          <p style="font-size:14px;">Lessons learned: ${s.lessonsLearned||'—'}</p>
+          <p style="font-size:14px;">Lessons learned: ${esc(s.lessonsLearned)||'—'}</p>
           <p style="font-size:12px; color:var(--steel); margin-top:16px;">Report generated by the MSRMF Reference Tool — no company name disclosed.</p>
         </div>
         <div class="toolbar"><button class="btn secondary" onclick="window.print()">Print / Save as PDF</button></div>
@@ -1185,9 +1192,9 @@ function renderPubs(){
     ${publications.map(p=>`
       <tr>
         <td><select data-p="${p.id}" data-f="type">${PUB_TYPES.map(t=>`<option ${t===p.type?'selected':''}>${t}</option>`).join('')}</select></td>
-        <td><input type="text" data-p="${p.id}" data-f="title" value="${p.title}"></td>
-        <td><input type="text" data-p="${p.id}" data-f="reference" value="${p.reference}"></td>
-        <td><input type="date" data-p="${p.id}" data-f="date" value="${p.date}"></td>
+        <td><input type="text" data-p="${p.id}" data-f="title" value="${esc(p.title)}"></td>
+        <td><input type="text" data-p="${p.id}" data-f="reference" value="${esc(p.reference)}"></td>
+        <td><input type="date" data-p="${p.id}" data-f="date" value="${esc(p.date)}"></td>
         <td><button class="del-btn" data-delpub="${p.id}">&times;</button></td>
       </tr>
     `).join('')}
@@ -1215,20 +1222,14 @@ if(addPubBtn){ addPubBtn.addEventListener('click', ()=>{ publications.push(newPu
 
 /* =========================================================
    SEND RESULTS BY EMAIL (via EmailJS — no server required)
-   ---------------------------------------------------------
-   SETUP REQUIRED (one-time, ~10 minutes) before this button works:
-   1. Create a free account at https://www.emailjs.com
-   2. Add an Email Service connected to liviasbm@hotmail.com (Outlook/Hotmail is supported).
-   3. Create an Email Template with variables: {{from_org}}, {{sent_at}}, {{session_data}}
-      Recipient field in the template should be set to: liviasbm@hotmail.com
-   4. Copy your Public Key, Service ID, and Template ID from the EmailJS dashboard
-      and paste them into the three constants below, replacing the placeholder text.
    ========================================================= */
-const EMAILJS_PUBLIC_KEY  = "kKEOUGR1IOktFdC9I";
-const EMAILJS_SERVICE_ID  = "service_bzcds8c";
-const EMAILJS_TEMPLATE_ID = "template_slyjqn6";
+// EmailJS credentials — injected from GitHub environment variables during CI/CD build.
+const EMAILJS_PUBLIC_KEY  = "${EMAILJS_PUBLIC_KEY}";
+const EMAILJS_SERVICE_ID  = "${EMAILJS_SERVICE_ID}";
+const EMAILJS_TEMPLATE_ID = "${EMAILJS_TEMPLATE_ID}";
+const EMAILJS_RECIPIENT   = "${EMAILJS_RECIPIENT}";
 
-if(window.emailjs && EMAILJS_PUBLIC_KEY.indexOf("REPLACE_WITH") !== 0){
+if(window.emailjs && EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY.indexOf("${") !== 0){
   emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
 }
 
@@ -1281,7 +1282,7 @@ function actuallySendEmail(orgLabel, payload){
   emailSendBtn.disabled = true;
   emailSendBtn.textContent = "Sending…";
   emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-    to_email: "liviasbm@hotmail.com",
+    to_email: EMAILJS_RECIPIENT,
     from_org: orgLabel,
     sent_at: new Date().toISOString(),
     session_data: payload
@@ -1290,7 +1291,7 @@ function actuallySendEmail(orgLabel, payload){
     setTimeout(()=>{ emailSendBtn.textContent = "📧 Send Results by Email"; emailSendBtn.disabled = false; }, 3000);
   }, (err)=>{
     console.error(err);
-    alert("Could not send automatically. Please use 'Save Session' and email the downloaded file to liviasbm@hotmail.com instead.");
+    alert("Could not send automatically. Please use 'Save Session' and email the downloaded file to " + EMAILJS_RECIPIENT + " instead.");
     emailSendBtn.textContent = "📧 Send Results by Email";
     emailSendBtn.disabled = false;
   });
@@ -1298,8 +1299,8 @@ function actuallySendEmail(orgLabel, payload){
 
 if(emailSendBtn){
   emailSendBtn.addEventListener('click', ()=>{
-    if(EMAILJS_PUBLIC_KEY.indexOf("REPLACE_WITH") === 0){
-      alert("Email sending isn't configured yet. See the setup instructions in the page source (search for EMAILJS_PUBLIC_KEY), or use 'Save Session' and email the file manually to liviasbm@hotmail.com in the meantime.");
+    if(!EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY.indexOf("${") === 0){
+      alert("Email sending isn't configured yet. Please use 'Save Session' and email the file manually instead.");
       return;
     }
     const orgLabel = studies.length ? studies[studies.length-1].orgId : "Unlabeled session";
@@ -1311,7 +1312,7 @@ if(emailSendBtn){
     // Show explicit consent panel listing exactly what will be transmitted — do not send yet.
     consentPanel.style.display = 'block';
     consentPanel.innerHTML = `
-      <p style="margin:0 0 8px; font-weight:700; color:var(--accent);">The following information will be transmitted by email to liviasbm@hotmail.com:</p>
+      <p style="margin:0 0 8px; font-weight:700; color:var(--accent);">The following information will be transmitted by email to ${EMAILJS_RECIPIENT}:</p>
       <ul style="margin:0 0 10px; padding-left:20px;">
         <li>${tickets.length} Gate 1–3 ticket record(s) (category, severity, scope, decisions, comments)</li>
         <li>${batches.length} deployment batch record(s)</li>
@@ -1369,7 +1370,20 @@ if(loadBtn && loadFile){
     const file = e.target.files[0]; if(!file) return;
     const reader = new FileReader();
     reader.onload = (ev)=>{
-      try{ applyState(JSON.parse(ev.target.result)); alert("Session loaded successfully."); }
+      try{
+        const parsed = JSON.parse(ev.target.result);
+        // Basic validation: must be a plain object with expected keys
+        if(typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)){
+          throw new Error("Invalid session format");
+        }
+        // Guard against prototype pollution from crafted JSON
+        const raw = ev.target.result;
+        if(raw.includes('__proto__') || raw.includes('constructor') || raw.includes('prototype')){
+          throw new Error("Invalid session format");
+        }
+        applyState(parsed);
+        alert("Session loaded successfully.");
+      }
       catch(err){ alert("Could not read this file — make sure it is a session file saved from this tool."); }
     };
     reader.readAsText(file);
