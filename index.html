@@ -92,6 +92,10 @@
   }
   .gate-complete-bar .complete-label{font-family:var(--label); font-size:14px; font-weight:700; color:var(--accent); display:flex; align-items:center; gap:8px;}
   .gate-complete-bar .complete-label .check{width:24px; height:24px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0;}
+  .gate-complete-bar.gc-incomplete{border-color:var(--line-strong); background:#fff;}
+  .gate-complete-bar.gc-incomplete .complete-label{color:var(--steel); font-weight:600;}
+  .gate-complete-bar.gc-incomplete .complete-label .check{background:var(--line-strong); color:#fff;}
+  .gate-complete-bar.gc-incomplete button.btn{background:#fff; color:var(--ink); border-color:var(--line-strong);}
   .gate-complete-bar button.btn{font-size:15px; padding:12px 26px;}
 
   .welcome-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
@@ -161,14 +165,18 @@
 
 <div class="shell">
   <aside class="sidebar">
-    <div class="sidebar-logo">
-      <svg width="38" height="38" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
-        <polygon points="19,2 33.72,10.5 33.72,27.5 19,36 4.28,27.5 4.28,10.5" fill="#3f7cac"/>
-        <text x="19" y="25" font-family="Calibri, 'Segoe UI', Arial, sans-serif" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">M</text>
+    <div class="sidebar-logo" style="align-items:flex-start;">
+      <svg width="42" height="42" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0; margin-top:2px;">
+        <polygon points="19,2 33.72,10.5 33.72,27.5 19,36 4.28,27.5 4.28,10.5" fill="#ffffff"/>
+        <text x="19" y="25" font-family="Calibri, 'Segoe UI', Arial, sans-serif" font-size="17" font-weight="700" fill="#0e2c42" text-anchor="middle">M</text>
       </svg>
-
-      <div><div class="word">MSRMF<span style="font-size:10px; vertical-align:super;">™</span></div><div class="sub">Reference Tool</div></div>
+      <div>
+        <div class="word">MSRMF</div>
+        <div style="font-family:var(--label); font-size:10px; color:#9fc1d6; line-height:1.3; margin-top:2px; max-width:150px;">Multi-Site Release Management Framework</div>
+        <div class="sub" style="margin-top:6px; display:inline-block; border:1px solid rgba(255,255,255,.25); padding:1px 7px; border-radius:2px;">Reference Tool</div>
+      </div>
     </div>
+
     <nav class="sidebar-nav" id="tabs">
       <button data-tab="welcome" class="active">Welcome</button>
       <div class="nav-section-label">Workflow</div>
@@ -182,9 +190,10 @@
       <button data-tab="risk">Risk &amp; Simulation</button>
       <button data-tab="kb">Knowledge Base</button>
       <button data-tab="walkthrough">Example Walkthrough</button>
-      <div class="nav-section-label">Evidence</div>
-      <button data-tab="studies">Field Evaluation</button>
-      <button data-tab="pubs">Publications</button>
+      <button data-tab="feedback">Pilot Feedback</button>
+      <div class="nav-section-label">Research (internal)</div>
+      <button data-tab="records">Evaluation Records</button>
+      <button data-tab="pubs">Research &amp; Publications</button>
     </nav>
   </aside>
 
@@ -210,6 +219,7 @@
         <input type="file" id="loadSessionFile" accept="application/json" style="display:none;">
       </span>
     </div>
+    <div id="emailConsentPanel" style="display:none; margin:-10px 0 18px; padding:14px 18px; background:var(--accent-soft); border:1px solid var(--accent); font-size:13.5px;"></div>
 
     <div id="stepperBar"></div>
 
@@ -240,7 +250,7 @@
         <ul class="checklist-simple">
           <li>✘ Replace engineering judgment</li>
           <li>✘ Connect to Jira or any external system</li>
-          <li>✘ Send data anywhere automatically — everything runs locally, until you choose to send it</li>
+          <li>✘ Send data anywhere without asking first — everything stays local until you review and confirm an email send</li>
         </ul>
       </div>
     </div>
@@ -317,7 +327,7 @@
         <button class="btn accent" id="exportCsv1">Export CSV</button>
       </div>
     </div>
-    <div class="gate-complete-bar"><span class="complete-label"><span class="check">✓</span>Gate 1 Complete</span><button class="btn accent" data-jump="gate2">Continue → Gate 2</button></div>
+    <div class="gate-complete-bar" id="gc-gate1"></div>
   </section>
 
   <!-- GATE 2 -->
@@ -337,7 +347,7 @@
         <tbody id="gate2Body"></tbody>
       </table>
     </div>
-    <div class="gate-complete-bar"><span class="complete-label"><span class="check">✓</span>Gate 2 Complete</span><button class="btn accent" data-jump="gate3">Continue → Gate 3</button></div>
+    <div class="gate-complete-bar" id="gc-gate2"></div>
   </section>
 
   <!-- GATE 3 -->
@@ -350,7 +360,7 @@
       <h3>Authorization Checklist</h3>
       <div id="gate3List"></div>
     </div>
-    <div class="gate-complete-bar"><span class="complete-label"><span class="check">✓</span>Gate 3 Complete</span><button class="btn accent" data-jump="deploy">Continue → Deployment</button></div>
+    <div class="gate-complete-bar" id="gc-gate3"></div>
   </section>
 
   <!-- DEPLOYMENT -->
@@ -375,7 +385,7 @@
         <button class="btn secondary" id="loadSampleBatch">Load Sample Batches</button>
       </div>
     </div>
-    <div class="gate-complete-bar"><span class="complete-label"><span class="check">✓</span>Deployment Complete</span><button class="btn accent" data-jump="monitor">Continue → Monitoring</button></div>
+    <div class="gate-complete-bar" id="gc-deploy"></div>
   </section>
 
   <!-- MONITORING -->
@@ -388,7 +398,7 @@
       <h3>Deployment Timeline</h3>
       <div id="timelineView"></div>
     </div>
-    <div class="gate-complete-bar"><span class="complete-label"><span class="check">✓</span>Monitoring Complete</span><button class="btn accent" data-jump="results">Continue → Results &amp; KPIs</button></div>
+    <div class="gate-complete-bar" id="gc-monitor"></div>
   </section>
 
   <!-- RESULTS / KPI -->
@@ -404,6 +414,7 @@
     <div class="card">
       <h3>Release Health Index (RHI)</h3>
       <p style="font-size:13.5px; color:var(--steel); max-width:760px;">A composite index proposed as part of this framework: safety approval rate, complexity (inverted), rollback readiness, and deployment success, combined into a single 0–100 score.</p>
+      <p style="font-size:13px; color:var(--accent); font-weight:600; max-width:760px; margin-top:-4px;">Exploratory composite indicator; weights have not yet been externally validated.</p>
       <details class="formula-toggle"><summary>RHI Formula</summary>
         <div class="formula">RHI&nbsp;=&nbsp;(Safety Rate×30)&nbsp;+&nbsp;((1−Avg.Complexity/5)×20)&nbsp;+&nbsp;(Rollback Readiness×30)&nbsp;+&nbsp;(Deployment Success×20)</div>
       </details>
@@ -430,7 +441,7 @@
     <div class="card">
       <p style="font-size:15px;">If this pilot was conducted inside your organization, please consider completing an entry in <b>Field Evaluation</b> — your feedback helps improve future versions of the framework.</p>
       <div class="toolbar">
-        <button class="btn accent" data-jump="studies">Go to Field Evaluation</button>
+        <button class="btn accent" data-jump="feedback">Go to Pilot Feedback</button>
         <button class="btn secondary" data-jump="welcome">Back to Welcome</button>
       </div>
     </div>
@@ -476,11 +487,41 @@
     </div>
   </section>
 
-  <!-- FIELD EVALUATION -->
-  <section class="tabpanel" id="tab-studies">
+  <!-- PILOT FEEDBACK (tester-facing) -->
+  <section class="tabpanel" id="tab-feedback">
     <div class="method-panel">
-      <h2>Field Evaluation — Early Adopter Pilots</h2>
-      <p>Each entry represents one organization's completed (or in-progress) field evaluation of the framework — an observation record, not a validation claim. Only Organization ID, industry, and country are ever exported; real names stay in the "internal use only" field.</p>
+      <h2>Pilot Feedback</h2>
+      <p>If you've been testing this tool, thank you — a few quick questions help improve it. This takes about 2 minutes.</p>
+    </div>
+    <div class="card">
+      <h3>Your Feedback</h3>
+      <div class="sim-controls">
+        <label>Industry (optional)<input type="text" id="fb-industry"></label>
+        <label>Country (optional)<input type="text" id="fb-country"></label>
+      </div>
+      <div class="sim-controls">
+        <label>Usability (1–5)<input type="number" min="1" max="5" id="fb-usability"></label>
+        <label>Clarity (1–5)<input type="number" min="1" max="5" id="fb-clarity"></label>
+        <label>Ease of Use (1–5)<input type="number" min="1" max="5" id="fb-ease"></label>
+        <label>Improved Decisions (1–5)<input type="number" min="1" max="5" id="fb-decision"></label>
+        <label>Reduced Risk (1–5)<input type="number" min="1" max="5" id="fb-risk"></label>
+      </div>
+      <label style="display:block; font-family:var(--label); font-size:12px; text-transform:uppercase; color:var(--steel); margin-top:10px;">Comments
+        <textarea id="fb-comments" style="min-height:60px; width:100%; border:1px solid var(--line-strong); padding:6px 8px; font-family:var(--body); font-size:14px; margin-top:4px;"></textarea>
+      </label>
+      <div class="toolbar">
+        <button class="btn accent" id="submitFeedback">Save Feedback</button>
+      </div>
+      <p class="disclaimer" style="margin-top:10px;" id="fbConfirm"></p>
+      <p class="disclaimer">Saved locally in this session. Use "Send Results by Email" above to share it with the framework author.</p>
+    </div>
+  </section>
+
+  <!-- EVALUATION RECORDS (internal) -->
+  <section class="tabpanel" id="tab-records">
+    <div class="method-panel">
+      <h2>Evaluation Records <span class="disclaimer">(internal research view)</span></h2>
+      <p>Consolidated pilot records, dataset export, and summary statistics. Only Organization ID, industry, and country are ever exported; real names stay in the "internal use only" field.</p>
     </div>
     <div class="card">
       <h3>Recorded Pilots</h3>
@@ -494,18 +535,19 @@
     </div>
   </section>
 
-  <!-- PUBLICATIONS -->
+  <!-- RESEARCH & PUBLICATIONS (static) -->
   <section class="tabpanel" id="tab-pubs">
     <div class="method-panel">
-      <h2>Publications &amp; Related Evidence</h2>
-      <p>A manually maintained index of the framework's published, patented, and presented record. Add only real, verifiable items — this is a reference index, not a generator.</p>
+      <h2>Research &amp; Publications</h2>
+      <p>Reference material related to this framework.</p>
     </div>
     <div class="card">
-      <h3>Index</h3>
-      <div id="pubsList"></div>
-      <div class="toolbar">
-        <button class="btn" id="addPub">+ Add Entry</button>
-      </div>
+      <ul class="checklist-simple">
+        <li><b>Paper:</b> <!-- add title/link here --> —</li>
+        <li><b>Patent:</b> Application pending <!-- add reference number here --></li>
+        <li><b>Conference:</b> IEOM <!-- add event/link here --> —</li>
+        <li><b>Repository:</b> <!-- add GitHub link here --> —</li>
+      </ul>
     </div>
   </section>
 
@@ -904,6 +946,7 @@ document.getElementById('loadSampleBatch').addEventListener('click',()=>{
 
 function renderAll(){
   renderGate1(); renderGate2(); renderGate3(); renderDeploy(); renderMonitor(); renderResults(); renderRisk(); renderStudies(); renderPubs();
+  renderGateBars();
 }
 
 
@@ -1037,6 +1080,26 @@ function renderStudies(){
 const addStudyBtn = document.getElementById('addStudy');
 if(addStudyBtn){ addStudyBtn.addEventListener('click', ()=>{ studies.push(newStudy()); renderStudies(); }); }
 
+/* -------- PILOT FEEDBACK (tester-facing lightweight form) -------- */
+const submitFeedbackBtn = document.getElementById('submitFeedback');
+if(submitFeedbackBtn){
+  submitFeedbackBtn.addEventListener('click', ()=>{
+    const s = newStudy();
+    s.industry = document.getElementById('fb-industry').value;
+    s.country = document.getElementById('fb-country').value;
+    s.survey.usability = document.getElementById('fb-usability').value;
+    s.survey.clarity = document.getElementById('fb-clarity').value;
+    s.survey.ease = document.getElementById('fb-ease').value;
+    s.survey.decisionImprovement = document.getElementById('fb-decision').value;
+    s.survey.riskReduction = document.getElementById('fb-risk').value;
+    s.survey.comments = document.getElementById('fb-comments').value;
+    s.completed = true;
+    studies.push(s);
+    const note = document.getElementById('fbConfirm');
+    if(note){ note.textContent = "Thank you — your feedback (" + s.orgId + ") has been saved to this session."; }
+  });
+}
+
 /* ---- Research Dataset CSV (only from entries you record) ---- */
 const exportResearchBtn = document.getElementById('exportResearchCsv');
 if(exportResearchBtn){
@@ -1160,6 +1223,27 @@ if(window.emailjs && EMAILJS_PUBLIC_KEY.indexOf("REPLACE_WITH") !== 0){
 }
 
 const emailSendBtn = document.getElementById('emailSend');
+const consentPanel = document.getElementById('emailConsentPanel');
+
+function actuallySendEmail(orgLabel, payload){
+  emailSendBtn.disabled = true;
+  emailSendBtn.textContent = "Sending…";
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    to_email: "liviasbm@hotmail.com",
+    from_org: orgLabel,
+    sent_at: new Date().toISOString(),
+    session_data: payload
+  }).then(()=>{
+    emailSendBtn.textContent = "✓ Sent";
+    setTimeout(()=>{ emailSendBtn.textContent = "📧 Send Results by Email"; emailSendBtn.disabled = false; }, 3000);
+  }, (err)=>{
+    console.error(err);
+    alert("Could not send automatically. Please use 'Save Session' and email the downloaded file to liviasbm@hotmail.com instead.");
+    emailSendBtn.textContent = "📧 Send Results by Email";
+    emailSendBtn.disabled = false;
+  });
+}
+
 if(emailSendBtn){
   emailSendBtn.addEventListener('click', ()=>{
     if(EMAILJS_PUBLIC_KEY.indexOf("REPLACE_WITH") === 0){
@@ -1172,21 +1256,28 @@ if(emailSendBtn){
       alert("This session's data is large. Please use 'Save Session (JSON)' instead and email the downloaded file manually, since automatic sending has a size limit.");
       return;
     }
-    emailSendBtn.disabled = true;
-    emailSendBtn.textContent = "Sending…";
-    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-      to_email: "liviasbm@hotmail.com",
-      from_org: orgLabel,
-      sent_at: new Date().toISOString(),
-      session_data: payload
-    }).then(()=>{
-      emailSendBtn.textContent = "✓ Sent";
-      setTimeout(()=>{ emailSendBtn.textContent = "📧 Send Results by Email"; emailSendBtn.disabled = false; }, 3000);
-    }, (err)=>{
-      console.error(err);
-      alert("Could not send automatically. Please use 'Save Session' and email the downloaded file to liviasbm@hotmail.com instead.");
-      emailSendBtn.textContent = "📧 Send Results by Email";
-      emailSendBtn.disabled = false;
+    // Show explicit consent panel listing exactly what will be transmitted — do not send yet.
+    consentPanel.style.display = 'block';
+    consentPanel.innerHTML = `
+      <p style="margin:0 0 8px; font-weight:700; color:var(--accent);">The following information will be transmitted by email to liviasbm@hotmail.com:</p>
+      <ul style="margin:0 0 10px; padding-left:20px;">
+        <li>${tickets.length} Gate 1–3 ticket record(s) (category, severity, scope, decisions, comments)</li>
+        <li>${batches.length} deployment batch record(s)</li>
+        <li>${studies.length} pilot feedback / evaluation record(s), including any survey ratings and comments entered</li>
+        <li>Timestamp of this submission</li>
+      </ul>
+      <p style="margin:0 0 10px;">No company name is included unless you typed one into a free-text field yourself. Nothing is sent until you confirm below.</p>
+      <div class="toolbar" style="margin-top:0;">
+        <button class="btn accent" id="confirmSendEmail">Confirm &amp; Send</button>
+        <button class="btn secondary" id="cancelSendEmail">Cancel</button>
+      </div>
+    `;
+    document.getElementById('confirmSendEmail').addEventListener('click', ()=>{
+      consentPanel.style.display = 'none';
+      actuallySendEmail(orgLabel, payload);
+    });
+    document.getElementById('cancelSendEmail').addEventListener('click', ()=>{
+      consentPanel.style.display = 'none';
     });
   });
 }
@@ -1235,7 +1326,35 @@ if(loadBtn && loadFile){
 }
 
 
-/* -------- LOAD DEMO PROJECT (Welcome page) -------- */
+/* -------- GATE COMPLETION VALIDATION (honest, not automatic) -------- */
+function renderGateBar(elId, isComplete, completeLabel, incompleteLabel, jumpTo, continueLabel){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  el.className = "gate-complete-bar" + (isComplete ? "" : " gc-incomplete");
+  const checkMark = isComplete ? "&#10003;" : "&#8226;";
+  const labelText = isComplete ? completeLabel : incompleteLabel;
+  el.innerHTML = '<span class="complete-label"><span class="check">'+checkMark+'</span>'+labelText+'</span>'
+    + '<button class="btn accent" data-jump="'+jumpTo+'">'+continueLabel+'</button>';
+}
+function renderGateBars(){
+  const g1ok = tickets.length > 0;
+  renderGateBar('gc-gate1', g1ok, "Gate 1 Complete", "Gate 1 in progress", "gate2", "Continue → Gate 2");
+
+  const g2ok = tickets.length > 0 && tickets.every(t=>t.technicalReview !== "Pending");
+  renderGateBar('gc-gate2', g2ok, "Gate 2 Complete", "Gate 2 in progress", "gate3", "Continue → Gate 3");
+
+  const approvedTickets = tickets.filter(t=>t.technicalReview==="Approved");
+  const g3ok = approvedTickets.length > 0 && approvedTickets.every(t=>finalAuthOf(t));
+  renderGateBar('gc-gate3', g3ok, "Gate 3 Complete", "Gate 3 in progress", "deploy", "Continue → Deployment");
+
+  const depOk = batches.length > 0 && batches.every(b=>b.ticketIds.length > 0);
+  renderGateBar('gc-deploy', depOk, "Deployment Complete", "Deployment in progress", "monitor", "Continue → Monitoring");
+
+  const monOk = batches.length > 0 && batches.every(b=>b.status==="Completed" || b.status==="Rolled Back");
+  renderGateBar('gc-monitor', monOk, "Monitoring Complete", "Monitoring in progress", "results", "Continue → Results & KPIs");
+}
+
+
 const loadDemoBtn = document.getElementById('loadDemoProject');
 if(loadDemoBtn){
   loadDemoBtn.addEventListener('click', ()=>{
