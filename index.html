@@ -15,6 +15,7 @@
     --accent2:#3f7cac; --accent2-soft:#e5f0f7;
     --ok:#2e5f7a; --ok-soft:#dde9f0;
     --risk-low:#3f7cac; --risk-med:#1d4e89; --risk-high:#12314f; --risk-crit:#0a1f33;
+    --sidebar-bg:#0e2c42; --sidebar-fg:#c7dced;
     --display:'Calibri Light', Calibri, 'Segoe UI', sans-serif;
     --label:'Calibri Light', Calibri, 'Segoe UI', sans-serif;
     --body:'Calibri Light', Calibri, 'Segoe UI', sans-serif;
@@ -23,50 +24,73 @@
   *{box-sizing:border-box;}
   body{margin:0; background:var(--paper); color:var(--ink); font-family:var(--body); font-size:16px; line-height:1.6;}
 
-  .titleblock-wrap{max-width:1240px; margin:24px auto 0; padding:0 24px;}
-  .titleblock{border:2px solid var(--ink); background:var(--panel); display:grid; grid-template-columns:88px 1fr auto;}
-  .tb-logo{display:flex; align-items:center; justify-content:center; border-right:2px solid var(--ink); padding:10px;}
-  .tb-main{padding:14px 18px; border-right:2px solid var(--ink);}
-  .tb-eyebrow{font-family:var(--label); font-size:12.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin:0 0 4px;}
-  .tb-title{font-family:var(--display); font-weight:700; font-size:27px; letter-spacing:-.01em; margin:0 0 6px;}
-  .tb-desc{margin:0; max-width:680px; font-size:14px; color:var(--steel);}
-  .tb-meta{display:grid; grid-template-rows:repeat(4,1fr);}
-  .tb-meta div{padding:6px 16px; border-bottom:1px solid var(--line-strong); font-family:var(--mono); font-size:12px; display:flex; justify-content:space-between; gap:14px; min-width:200px;}
-  .tb-meta div:last-child{border-bottom:none;}
-  .tb-meta span.k{color:var(--steel); text-transform:uppercase; letter-spacing:.05em;}
-  .tb-meta span.v{font-weight:600;}
+  .shell{display:flex; min-height:100vh; align-items:stretch;}
 
-  .rev-strip{max-width:1240px; margin:10px auto 0; padding:0 24px; font-family:var(--mono); font-size:12px; color:var(--steel); display:flex; gap:18px; flex-wrap:wrap;}
-  .rev-strip b{color:var(--ink);}
-
-  .scope-banner{
-    max-width:1240px; margin:14px auto 0; padding:12px 20px; background:var(--accent-soft);
-    border:1px solid var(--accent); font-size:14px; color:#0d2c4a;
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{width:250px; background:var(--sidebar-bg); color:var(--sidebar-fg); flex-shrink:0; display:flex; flex-direction:column; position:sticky; top:0; align-self:flex-start; height:100vh; overflow-y:auto;}
+  .sidebar-logo{display:flex; align-items:center; gap:10px; padding:20px 18px; border-bottom:1px solid rgba(255,255,255,.15);}
+  .sidebar-logo img{width:38px; height:38px; border-radius:7px; display:block;}
+  .sidebar-logo .word{font-family:var(--display); font-weight:700; font-size:17px; color:#fff; line-height:1.15;}
+  .sidebar-logo .sub{font-family:var(--label); font-size:9.5px; text-transform:uppercase; letter-spacing:.05em; color:#7fa4bc;}
+  .sidebar-nav{flex:1; padding:12px 0 20px;}
+  .sidebar-nav .nav-section-label{font-family:var(--label); font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:#5f8299; padding:16px 18px 6px;}
+  .sidebar-nav button{
+    display:flex; align-items:center; gap:10px; width:100%; text-align:left; background:none; border:none;
+    color:var(--sidebar-fg); font-family:var(--label); font-size:14px; padding:9px 18px; cursor:pointer; border-left:3px solid transparent;
   }
+  .sidebar-nav button:hover{background:rgba(255,255,255,.06); color:#fff;}
+  .sidebar-nav button.active{background:rgba(255,255,255,.09); color:#fff; border-left-color:var(--accent2); font-weight:600;}
+
+  /* ---------- CONTENT AREA ---------- */
+  .content-area{flex:1; min-width:0; padding:26px 32px 60px;}
+  .content-header{display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:14px; margin-bottom:6px; padding-bottom:16px; border-bottom:2px solid var(--ink);}
+  .content-title h1{font-family:var(--display); font-weight:700; font-size:24px; margin:0 0 4px;}
+  .content-title p{margin:0; font-size:13.5px; color:var(--steel); max-width:640px;}
+  .meta-pills{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  .meta-pill{font-family:var(--mono); font-size:11px; border:1px solid var(--line-strong); padding:4px 10px; color:var(--steel); background:#fff;}
+  .meta-pill b{color:var(--ink);}
+  .status-pill{background:var(--accent); color:#fff; border-color:var(--accent);}
+
+  .action-bar{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin:14px 0 18px; padding:10px 16px; background:#fff; border:1px solid var(--line-strong);}
+  .action-bar .note{font-size:13px; color:var(--steel);}
+  .action-bar .btns{display:flex; gap:8px; flex-wrap:wrap;}
+
+  /* ---------- STEPPER ---------- */
+  #stepperBar:empty{margin:0;}
+  .stepper{display:flex; align-items:center; gap:4px; margin-bottom:22px; flex-wrap:wrap;}
+  .step{display:flex; align-items:center; gap:6px; font-family:var(--label); font-size:12.5px; color:var(--steel);}
+  .step .dot{width:22px; height:22px; border-radius:50%; border:2px solid var(--line-strong); display:flex; align-items:center; justify-content:center; font-size:11px; font-family:var(--mono); background:#fff; flex-shrink:0;}
+  .step.done .dot{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .step.current .dot{border-color:var(--accent); color:var(--accent); font-weight:700;}
+  .step.current span{color:var(--ink); font-weight:600;}
+  .step .connector{width:18px; height:2px; background:var(--line-strong);}
+
+  .scope-banner{margin:0 0 18px; padding:12px 16px; background:var(--accent-soft); border:1px solid var(--accent); font-size:13.5px; color:#0d2c4a;}
   .scope-banner b{color:var(--accent);}
 
-  nav.tabs{
-    max-width:1240px; margin:16px auto 0; padding:8px 24px 0; display:flex; gap:6px; flex-wrap:wrap;
-  }
-  nav.tabs button{
-    font-family:var(--label); font-size:14px; font-weight:600; text-transform:uppercase; letter-spacing:.03em;
-    background:#fff; border:2px solid var(--ink); padding:10px 18px; cursor:pointer; color:var(--ink);
-    border-bottom:none; border-radius:6px 6px 0 0; position:relative; top:2px;
-  }
-  nav.tabs button.active{background:var(--ink); color:#fff; border-color:var(--ink);}
-  nav.tabs button:not(.active):hover{background:var(--accent-soft); border-color:var(--accent);}
-
-  main{max-width:1240px; margin:0 auto; padding:22px 24px 60px;}
   .tabpanel{display:none;}
   .tabpanel.active{display:block;}
 
-  .method-panel{background:var(--panel); border:1px solid var(--line-strong); padding:16px 20px; margin-bottom:22px;}
+  .method-panel{background:var(--panel); border:1px solid var(--line-strong); padding:16px 20px; margin-bottom:18px;}
   .method-panel h2{margin:0 0 8px; font-family:var(--label); font-size:14px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink); border-bottom:2px solid var(--accent); display:inline-block; padding-bottom:3px;}
   .method-panel p{margin:0 0 8px; font-size:14px; color:#33372f; max-width:860px;}
   .formula{font-family:var(--mono); background:var(--accent-soft); border:1px solid var(--accent); padding:9px 14px; font-size:14px; display:inline-block; color:#0d2c4a;}
 
+  details.formula-toggle{margin-top:6px;}
+  details.formula-toggle summary{cursor:pointer; font-family:var(--label); font-size:13px; color:var(--accent); font-weight:600; list-style:none;}
+  details.formula-toggle summary::-webkit-details-marker{display:none;}
+  details.formula-toggle summary::after{content:" \25BE";}
+  details.formula-toggle[open] summary::after{content:" \25B4";}
+  details.formula-toggle .formula{margin-top:8px;}
+
   .card{background:var(--panel); border:1px solid var(--line-strong); padding:16px 20px; margin-bottom:18px;}
   .card h3{margin:0 0 12px; font-family:var(--label); font-size:13.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--steel);}
+
+  .gate-complete-bar{display:flex; justify-content:flex-end; align-items:center; margin-top:6px; gap:12px;}
+
+  .welcome-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .checklist-simple{list-style:none; padding:0; margin:0;}
+  .checklist-simple li{padding:4px 0; font-size:14px;}
 
   table{width:100%; border-collapse:collapse; font-size:14px;}
   th,td{padding:7px 8px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top;}
@@ -117,79 +141,159 @@
   .filters label{display:flex; flex-direction:column; gap:4px; font-family:var(--label); font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--steel);}
   .filters select, .filters input{font-family:var(--body); font-size:14px; border:1px solid var(--line-strong); padding:6px 8px; background:#fff;}
 
-  footer{max-width:1240px; margin:0 auto; padding:0 24px 44px; color:var(--steel); font-size:12.5px;}
+  footer{padding:20px 0 10px; color:var(--steel); font-size:12.5px;}
   .empty-note{color:var(--steel); font-style:italic; font-size:13.5px; padding:10px 0;}
+
+  @media (max-width:900px){
+    .shell{flex-direction:column;}
+    .sidebar{width:100%; height:auto; position:relative;}
+    .welcome-grid{grid-template-columns:1fr;}
+  }
 </style>
 </head>
 <body>
 
-<div class="titleblock-wrap">
-  <div class="titleblock">
-    <div class="tb-logo">
-      <svg width="56" height="56" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <rect x="4" y="4" width="92" height="92" fill="none" stroke="#12314f" stroke-width="4"/>
-        <line x1="50" y1="18" x2="22" y2="68" stroke="#1d4e89" stroke-width="4"/>
-        <line x1="50" y1="18" x2="78" y2="68" stroke="#1d4e89" stroke-width="4"/>
-        <line x1="22" y1="68" x2="78" y2="68" stroke="#1d4e89" stroke-width="4"/>
-        <circle cx="50" cy="18" r="8" fill="#12314f"/>
-        <circle cx="22" cy="68" r="8" fill="#12314f"/>
-        <circle cx="78" cy="68" r="8" fill="#12314f"/>
-        <circle cx="50" cy="18" r="8" fill="none" stroke="#ffffff" stroke-width="2"/>
-        <circle cx="22" cy="68" r="8" fill="none" stroke="#ffffff" stroke-width="2"/>
-        <circle cx="78" cy="68" r="8" fill="none" stroke="#ffffff" stroke-width="2"/>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <svg width="38" height="38" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+        <polygon points="19,2 33.72,10.5 33.72,27.5 19,36 4.28,27.5 4.28,10.5" fill="#3f7cac"/>
+        <text x="19" y="25" font-family="Calibri, 'Segoe UI', Arial, sans-serif" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">M</text>
       </svg>
+
+      <div><div class="word">MSRMF<span style="font-size:10px; vertical-align:super;">™</span></div><div class="sub">Release Console</div></div>
     </div>
-    <div class="tb-main">
-      <p class="tb-eyebrow">Multi-Site Release Management Framework</p>
-      <h1 class="tb-title">Triage &amp; Release Console</h1>
-      <p class="tb-desc">Reference implementation of a gated engineering release-governance methodology (Triage → Validation → Authorization → Deployment → Monitoring → Results) for multi-site automation programs.</p>
+    <div style="padding:0 18px 14px; margin-top:-6px;">
+      <span style="display:inline-block; font-family:var(--label); font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; color:#7fa4bc; border:1px solid rgba(255,255,255,.25); padding:2px 8px; border-radius:2px;">Patent Pending</span>
     </div>
-    <div class="tb-meta">
-      <div><span class="k">Dwg No.</span><span class="v">MSRMF&#8209;TRC&#8209;002</span></div>
-      <div><span class="k">Rev.</span><span class="v">B</span></div>
-      <div><span class="k">Scale</span><span class="v">N/A</span></div>
-      <div><span class="k">Status</span><span class="v">Pilot</span></div>
+    <nav class="sidebar-nav" id="tabs">
+      <button data-tab="welcome" class="active">Welcome</button>
+      <div class="nav-section-label">Workflow</div>
+      <button data-tab="gate1">① Gate 1 — Triage</button>
+      <button data-tab="gate2">② Gate 2 — Validation</button>
+      <button data-tab="gate3">③ Gate 3 — Authorization</button>
+      <button data-tab="deploy">④ Deployment</button>
+      <button data-tab="monitor">⑤ Monitoring</button>
+      <button data-tab="results">⑥ Results &amp; KPIs</button>
+      <div class="nav-section-label">Analysis</div>
+      <button data-tab="risk">Risk &amp; Simulation</button>
+      <button data-tab="kb">Knowledge Base</button>
+      <button data-tab="walkthrough">Example Walkthrough</button>
+      <div class="nav-section-label">Evidence</div>
+      <button data-tab="studies">Field Evaluation</button>
+      <button data-tab="pubs">Publications</button>
+    </nav>
+  </aside>
+
+  <div class="content-area">
+    <div class="content-header">
+      <div class="content-title">
+        <h1>Triage &amp; Release Console</h1>
+        <p>Reference implementation of a gated engineering release-governance methodology for multi-site automation programs.</p>
+      </div>
+      <div class="meta-pills">
+        <span class="meta-pill">DWG NO: <b>MSRMF&#8209;TRC&#8209;002</b></span>
+        <span class="meta-pill">REV: <b>C</b></span>
+        <span class="meta-pill status-pill">PILOT</span>
+      </div>
     </div>
-  </div>
-</div>
-<div class="rev-strip"><span><b>Rev B</b> — Gated workflow (Gates 1–3), deployment, monitoring, KPI/RHI, risk engine, simulation, knowledge base</span><span>Client-side only — no data transmitted or stored</span></div>
 
-<div class="scope-banner">
-  <b>Scope note:</b> this is a single-organization pilot tool. All statistics, KPIs, and the Release Health Index below are computed exclusively from the tickets and batches entered in this session — there is no cross-company dataset, no external adoption data, and no simulated "community benchmark." Figures shown reflect only what you enter here.
-</div>
+    <div class="action-bar">
+      <span class="note"><b>Session data:</b> kept only in this browser tab — save before closing.</span>
+      <span class="btns">
+        <button class="btn accent" id="emailSend">📧 Send Results by Email</button>
+        <button class="btn secondary" id="saveSession">💾 Save Session</button>
+        <button class="btn secondary" id="loadSessionBtn">📂 Load Session</button>
+        <input type="file" id="loadSessionFile" accept="application/json" style="display:none;">
+      </span>
+    </div>
 
-<nav class="tabs" id="tabs">
-  <button data-tab="gate1" class="active">Gate 1 — Triage</button>
-  <button data-tab="gate2">Gate 2 — Validation</button>
-  <button data-tab="gate3">Gate 3 — Authorization</button>
-  <button data-tab="deploy">Deployment</button>
-  <button data-tab="monitor">Monitoring</button>
-  <button data-tab="results">Results &amp; KPIs</button>
-  <button data-tab="risk">Risk &amp; Simulation</button>
-  <button data-tab="kb">Knowledge Base</button>
-  <button data-tab="studies">Field Evaluation</button>
-  <button data-tab="pubs">Publications</button>
-</nav>
-<div class="scope-banner" style="background:#fff; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-  <span><b>Session data:</b> this tool keeps everything only in your browser tab. Save before closing, or you will lose your work.</span>
-  <span style="display:flex; gap:8px; flex-wrap:wrap;">
-    <button class="btn accent" id="emailSend">📧 Send Results by Email</button>
-    <button class="btn secondary" id="saveSession">💾 Save Session (JSON)</button>
-    <button class="btn secondary" id="loadSessionBtn">📂 Load Session (JSON)</button>
-    <input type="file" id="loadSessionFile" accept="application/json" style="display:none;">
-  </span>
-</div>
+    <div id="stepperBar"></div>
 
+    <main>
 
-<main>
+  <!-- WELCOME -->
+  <section class="tabpanel active" id="tab-welcome">
+    <div class="method-panel">
+      <h2>Welcome</h2>
+      <p>Thank you for testing this pilot version of the MSRMF Triage &amp; Release Console.</p>
+      <p><b>Estimated time:</b> 10–15 minutes.</p>
+    </div>
+    <div class="welcome-grid">
+      <div class="card">
+        <h3>What this tool does</h3>
+        <ul class="checklist-simple">
+          <li>✔ Classify engineering changes</li>
+          <li>✔ Decide what enters a release</li>
+          <li>✔ Document justification</li>
+          <li>✔ Plan for rollback</li>
+          <li>✔ Track deployment</li>
+          <li>✔ Generate indicators (KPIs)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>What this tool does not do</h3>
+        <ul class="checklist-simple">
+          <li>✘ Replace engineering judgment</li>
+          <li>✘ Connect to Jira or any external system</li>
+          <li>✘ Send data anywhere automatically — everything runs locally, until you choose to send it</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <h3>How to test</h3>
+      <ol style="padding-left:20px; font-size:14px; margin:0 0 14px;">
+        <li>Open <b>Gate 1</b> and enter a few changes (or load the demo project below).</li>
+        <li>Move to <b>Gate 2</b> and decide what gets approved.</li>
+        <li>Authorize releases in <b>Gate 3</b>.</li>
+        <li>Group authorized items into a <b>Deployment</b> batch.</li>
+        <li>Check <b>Results &amp; KPIs</b>.</li>
+        <li>Share feedback with us — see <b>Field Evaluation</b>.</li>
+      </ol>
+      <div class="toolbar">
+        <button class="btn accent" id="loadDemoProject">Load Demo Project</button>
+        <button class="btn secondary" data-jump="walkthrough">See a Worked Example First</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXAMPLE WALKTHROUGH -->
+  <section class="tabpanel" id="tab-walkthrough">
+    <div class="method-panel">
+      <h2>Example Walkthrough</h2>
+      <p>One worked example, start to finish, showing how the framework's logic applies in practice.</p>
+    </div>
+    <div class="card">
+      <h3>Ticket: "Sensor obstruction false positives"</h3>
+      <table>
+        <tr><th style="width:180px;">Severity</th><td>P1</td></tr>
+        <tr><th>Scope</th><td>Network</td></tr>
+        <tr><th>Complexity</th><td>2</td></tr>
+        <tr><th>Priority score</th><td>(3×3) + (4×2) − 2 = <b>16</b> → Standard Review</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Gate 1 → Gate 2 → Gate 3</h3>
+      <p><b>Decision:</b> Included. <b>Reason:</b> Safety issue affecting all sites.</p>
+      <p><b>Gate 2:</b> Requested by Safety team → Technical Review: Approved.</p>
+      <p><b>Gate 3:</b> Rollback plan ✓ · Safety approved ✓ · Documentation complete ✓ · Operations ready ✓ → <b>Authorized</b>.</p>
+    </div>
+    <div class="card">
+      <h3>Deployment → Result</h3>
+      <p>Batched with 11 other authorized tickets, deployed across 14 sites over 6 days. Zero rollback. Contributed to a Deployment Success rate of 92% and an RHI of 78 for that release cycle.</p>
+    </div>
+    <div class="toolbar"><button class="btn accent" data-jump="gate1">Try It Yourself →</button></div>
+  </section>
 
   <!-- GATE 1 -->
-  <section class="tabpanel active" id="tab-gate1">
+  <section class="tabpanel" id="tab-gate1">
     <div class="method-panel">
       <h2>Gate 1 — Triage</h2>
-      <p>Every incoming item is classified by category, severity, and scope, then assigned a priority score and release band. Justification fields capture the reasoning behind inclusion or exclusion, consistent with the framework's emphasis on documented, auditable decisions rather than ad hoc judgment.</p>
-      <div class="formula">priority&nbsp;=&nbsp;(severity_weight&nbsp;×&nbsp;3)&nbsp;+&nbsp;(scope_weight&nbsp;×&nbsp;2)&nbsp;−&nbsp;complexity</div>
-      <p style="margin-top:8px;">Severity weights: P0=4, P1=3, P2=2, P3=1. Scope weights: Network=4, Client=3, Site=2, Single Unit=1. Bands — <b>Fast-Track</b> (≥18), <b>Standard Review</b> (10–17), <b>Deferred</b> (&lt;10).</p>
+      <p><b>Purpose:</b> classify each change request. Priority is calculated automatically. Fill in the inclusion/exclusion rationale.</p>
+      <details class="formula-toggle"><summary>Priority Formula</summary>
+        <div class="formula">priority&nbsp;=&nbsp;(severity_weight&nbsp;×&nbsp;3)&nbsp;+&nbsp;(scope_weight&nbsp;×&nbsp;2)&nbsp;−&nbsp;complexity</div>
+        <p style="margin-top:8px; font-size:13px;">Severity weights: P0=4, P1=3, P2=2, P3=1. Scope weights: Network=4, Client=3, Site=2, Single Unit=1. Bands — <b>Fast-Track</b> (≥18), <b>Standard Review</b> (10–17), <b>Deferred</b> (&lt;10).</p>
+      </details>
     </div>
     <div class="card">
       <h3>Ticket Intake</h3>
@@ -209,13 +313,14 @@
         <button class="btn accent" id="exportCsv1">Export CSV</button>
       </div>
     </div>
+    <div class="gate-complete-bar"><button class="btn accent" data-jump="gate2">Continue → Gate 2</button></div>
   </section>
 
   <!-- GATE 2 -->
   <section class="tabpanel" id="tab-gate2">
     <div class="method-panel">
       <h2>Gate 2 — Validation</h2>
-      <p>Technical review determines whether a triaged ticket is sound for release. This gate also records who requested inclusion, making visible any tension between operational/commercial pressure and engineering judgment — a dynamic the framework treats as central to credible release governance.</p>
+      <p><b>Purpose:</b> technical review decides if a triaged ticket is sound for release, and records who requested it — surfacing any tension between operational pressure and engineering judgment.</p>
     </div>
     <div class="card">
       <h3>Technical Review</h3>
@@ -228,25 +333,27 @@
         <tbody id="gate2Body"></tbody>
       </table>
     </div>
+    <div class="gate-complete-bar"><button class="btn accent" data-jump="gate3">Continue → Gate 3</button></div>
   </section>
 
   <!-- GATE 3 -->
   <section class="tabpanel" id="tab-gate3">
     <div class="method-panel">
       <h2>Gate 3 — Authorization</h2>
-      <p>Only tickets approved at Gate 2 are eligible here. Final authorization requires all four checklist items to be confirmed — this materializes the framework's principle that release readiness is a checklist of independently verifiable conditions, not a single subjective sign-off.</p>
+      <p><b>Purpose:</b> only Gate-2-approved tickets are eligible here. All four checklist items must be confirmed before final authorization — readiness is a checklist, not one subjective sign-off.</p>
     </div>
     <div class="card">
       <h3>Authorization Checklist</h3>
       <div id="gate3List"></div>
     </div>
+    <div class="gate-complete-bar"><button class="btn accent" data-jump="deploy">Continue → Deployment</button></div>
   </section>
 
   <!-- DEPLOYMENT -->
   <section class="tabpanel" id="tab-deploy">
     <div class="method-panel">
       <h2>Deployment</h2>
-      <p>Authorized tickets are grouped into batches for coordinated multi-site rollout. Each batch tracks scope (sites), timing, status, and incident/rollback outcomes.</p>
+      <p><b>Purpose:</b> group authorized tickets into batches for coordinated multi-site rollout, tracking scope, timing, status, and incident/rollback outcomes.</p>
     </div>
     <div class="card">
       <h3>Release Batches</h3>
@@ -264,25 +371,27 @@
         <button class="btn secondary" id="loadSampleBatch">Load Sample Batches</button>
       </div>
     </div>
+    <div class="gate-complete-bar"><button class="btn accent" data-jump="monitor">Continue → Monitoring</button></div>
   </section>
 
   <!-- MONITORING -->
   <section class="tabpanel" id="tab-monitor">
     <div class="method-panel">
       <h2>Monitoring</h2>
-      <p>A cumulative timeline of deployed batches, with incident logging for post-release tracking.</p>
+      <p><b>Purpose:</b> a cumulative timeline of deployed batches, with incident logging for post-release tracking.</p>
     </div>
     <div class="card">
       <h3>Deployment Timeline</h3>
       <div id="timelineView"></div>
     </div>
+    <div class="gate-complete-bar"><button class="btn accent" data-jump="results">Continue → Results &amp; KPIs</button></div>
   </section>
 
   <!-- RESULTS / KPI -->
   <section class="tabpanel" id="tab-results">
     <div class="method-panel">
       <h2>Results &amp; KPI Engine</h2>
-      <p>All figures below are computed automatically from the tickets and batches you have entered in this session.</p>
+      <p><b>Purpose:</b> all figures below are computed automatically from the tickets and batches you entered in this session.</p>
     </div>
     <div class="card">
       <h3>Core KPIs</h3>
@@ -290,12 +399,18 @@
     </div>
     <div class="card">
       <h3>Release Health Index (RHI)</h3>
-      <p style="font-size:13.5px; color:var(--steel); max-width:760px;">A composite index proposed as part of this framework, combining safety approval rate, implementation complexity (inverted), rollback readiness, and deployment success into a single 0–100 score.</p>
-      <div class="formula" style="margin-bottom:10px;">RHI&nbsp;=&nbsp;(Safety Rate×30)&nbsp;+&nbsp;((1−Avg.Complexity/5)×20)&nbsp;+&nbsp;(Rollback Readiness×30)&nbsp;+&nbsp;(Deployment Success×20)</div>
+      <p style="font-size:13.5px; color:var(--steel); max-width:760px;">A composite index proposed as part of this framework: safety approval rate, complexity (inverted), rollback readiness, and deployment success, combined into a single 0–100 score.</p>
+      <details class="formula-toggle"><summary>RHI Formula</summary>
+        <div class="formula">RHI&nbsp;=&nbsp;(Safety Rate×30)&nbsp;+&nbsp;((1−Avg.Complexity/5)×20)&nbsp;+&nbsp;(Rollback Readiness×30)&nbsp;+&nbsp;(Deployment Success×20)</div>
+      </details>
       <div class="rhi-box">
         <div class="rhi-number" id="rhiNumber">—</div>
         <div class="rhi-bar-track"><div class="rhi-bar-fill" id="rhiBar" style="width:0%;"></div></div>
       </div>
+    </div>
+    <div class="gate-complete-bar">
+      <button class="btn secondary" data-jump="risk">Explore Risk &amp; Simulation</button>
+      <button class="btn secondary" data-jump="studies">Share Feedback</button>
     </div>
   </section>
 
@@ -303,7 +418,7 @@
   <section class="tabpanel" id="tab-risk">
     <div class="method-panel">
       <h2>Risk Engine</h2>
-      <p>A rule-based (non-statistical) heuristic estimate of overall release risk, derived from open high-severity tickets, average complexity, average scope, and rollback history entered above.</p>
+      <p><b>Purpose:</b> a rule-based (non-statistical) estimate of overall release risk, from open high-severity tickets, average complexity, average scope, and rollback history.</p>
     </div>
     <div class="card">
       <h3>Current Overall Risk</h3>
@@ -325,7 +440,7 @@
   <section class="tabpanel" id="tab-kb">
     <div class="method-panel">
       <h2>Knowledge Base</h2>
-      <p>Search and filter the decisions recorded above — e.g., all P0 tickets, or all batches with a rollback.</p>
+      <p><b>Purpose:</b> search and filter recorded decisions — e.g. all P0 tickets, or all batches with a rollback.</p>
     </div>
     <div class="card">
       <h3>Filters</h3>
@@ -339,11 +454,11 @@
     </div>
   </section>
 
-  <!-- VALIDATION PROGRAM -->
+  <!-- FIELD EVALUATION -->
   <section class="tabpanel" id="tab-studies">
     <div class="method-panel">
       <h2>Field Evaluation — Early Adopter Pilots</h2>
-      <p>Each entry represents one organization's completed (or in-progress) 30-day field evaluation of the framework. This section records observations and self-reported outcomes from participating organizations — it is not a claim that the methodology has been formally validated. Public identifiers only (Organization ID, industry, country) are used in any exported report — real names, if recorded at all, stay in the "internal use only" field and are never included in exports or printed reports.</p>
+      <p>Each entry represents one organization's completed (or in-progress) field evaluation of the framework — an observation record, not a validation claim. Only Organization ID, industry, and country are ever exported; real names stay in the "internal use only" field.</p>
     </div>
     <div class="card">
       <h3>Recorded Pilots</h3>
@@ -361,7 +476,7 @@
   <section class="tabpanel" id="tab-pubs">
     <div class="method-panel">
       <h2>Publications &amp; Related Evidence</h2>
-      <p>A manually maintained index tying the framework's published, patented, and presented record together with pilot reports. Add only real, verifiable items — this is a reference index, not a generator.</p>
+      <p>A manually maintained index of the framework's published, patented, and presented record. Add only real, verifiable items — this is a reference index, not a generator.</p>
     </div>
     <div class="card">
       <h3>Index</h3>
@@ -371,13 +486,18 @@
       </div>
     </div>
   </section>
-</main>
 
-<footer>
-  <p>Pilot reference implementation of a gated, generalized multi-site engineering release-governance methodology. All computation is client-side; no data is transmitted, stored server-side, or aggregated across organizations.</p>
-</footer>
+    </main>
+
+    <footer>
+      <p>Pilot reference implementation of a gated, generalized multi-site engineering release-governance methodology. All computation is client-side; no data is transmitted, stored server-side, or aggregated across organizations.</p>
+      <p>MSRMF™ is an independently developed framework; a related patent application is currently pending.</p>
+    </footer>
+  </div>
+</div>
 
 <script>
+
 const CATS = ["Software","Hardware","Configuration","Safety","Documentation"];
 const SEVERITIES = ["P0","P1","P2","P3"];
 const SCOPES = ["Single Unit","Site","Client","Network"];
@@ -409,14 +529,46 @@ function finalAuthOf(t){
   return t.technicalReview==="Approved" && Object.values(t.checklist).every(v=>v===true);
 }
 
-/* -------- TABS -------- */
+/* -------- TABS / SIDEBAR NAV -------- */
+const CORE_STEPS = [
+  {id:"welcome", label:"Welcome"},
+  {id:"gate1", label:"Gate 1"},
+  {id:"gate2", label:"Gate 2"},
+  {id:"gate3", label:"Gate 3"},
+  {id:"deploy", label:"Deploy"},
+  {id:"monitor", label:"Monitor"},
+  {id:"results", label:"Results"},
+];
+function renderStepper(activeTab){
+  const box = document.getElementById('stepperBar');
+  if(!box) return;
+  const idx = CORE_STEPS.findIndex(s=>s.id===activeTab);
+  if(idx===-1){ box.innerHTML=''; return; }
+  box.innerHTML = '<div class="stepper">' + CORE_STEPS.map((s,i)=>{
+    const cls = i<idx ? 'done' : (i===idx ? 'current':'');
+    const mark = i<idx ? '&#10003;' : (i+1);
+    const connector = i < CORE_STEPS.length-1 ? '<div class="connector"></div>' : '';
+    return '<div class="step '+cls+'"><div class="dot">'+mark+'</div><span>'+s.label+'</span></div>'+connector;
+  }).join('') + '</div>';
+}
+function goToTab(tabId){
+  const btn = document.querySelector('.sidebar-nav button[data-tab="'+tabId+'"]');
+  if(btn) btn.click();
+}
 document.getElementById('tabs').addEventListener('click',(e)=>{
   if(e.target.tagName!=='BUTTON') return;
-  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.sidebar-nav button').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.tabpanel').forEach(p=>p.classList.remove('active'));
   e.target.classList.add('active');
-  document.getElementById('tab-'+e.target.dataset.tab).classList.add('active');
+  const tabId = e.target.dataset.tab;
+  document.getElementById('tab-'+tabId).classList.add('active');
+  renderStepper(tabId);
   renderAll();
+  window.scrollTo(0,0);
+});
+document.addEventListener('click',(e)=>{
+  const jumpBtn = e.target.closest('[data-jump]');
+  if(jumpBtn){ goToTab(jumpBtn.dataset.jump); }
 });
 
 /* -------- GATE 1 -------- */
@@ -1054,7 +1206,20 @@ if(loadBtn && loadFile){
 }
 
 
-document.getElementById('loadSample1').click();
+/* -------- LOAD DEMO PROJECT (Welcome page) -------- */
+const loadDemoBtn = document.getElementById('loadDemoProject');
+if(loadDemoBtn){
+  loadDemoBtn.addEventListener('click', ()=>{
+    document.getElementById('loadSample1').click();
+    document.getElementById('loadSampleBatch').click();
+    goToTab('gate1');
+  });
+}
+
+/* -------- INITIAL STATE (starts empty by design) -------- */
+renderAll();
+renderStepper('welcome');
+
 </script>
 </body>
 </html>
