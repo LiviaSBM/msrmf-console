@@ -20,6 +20,8 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Inject EmailJS secrets
         env:
@@ -29,6 +31,14 @@ jobs:
           EMAILJS_RECIPIENT: ${{ secrets.EMAILJS_RECIPIENT }}
         run: |
           envsubst '${EMAILJS_PUBLIC_KEY} ${EMAILJS_SERVICE_ID} ${EMAILJS_TEMPLATE_ID} ${EMAILJS_RECIPIENT}' < index.html > index.tmp
+          mv index.tmp index.html
+
+      - name: Inject build metadata
+        run: |
+          export BUILD_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
+          export BUILD_DATE=$(date -u +"%d/%m/%Y")
+          export BUILD_COMMIT=$(echo "${{ github.sha }}" | cut -c1-7)
+          envsubst '${BUILD_VERSION} ${BUILD_DATE} ${BUILD_COMMIT}' < index.html > index.tmp
           mv index.tmp index.html
 
       - uses: actions/upload-pages-artifact@v4

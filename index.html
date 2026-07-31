@@ -196,6 +196,9 @@
       <button data-tab="records">Evaluation Records</button>
       <button data-tab="pubs">Research &amp; Publications</button>
     </nav>
+    <div style="padding:14px 18px; border-top:1px solid rgba(255,255,255,.15); font-family:var(--mono); font-size:10px; color:#5f8299; line-height:1.6;">
+      v${BUILD_VERSION}<br>${BUILD_DATE}<br>${BUILD_COMMIT}
+    </div>
   </aside>
 
   <div class="content-area">
@@ -556,6 +559,7 @@
 
     <footer>
       <p>Reference implementation accompanying the MSRMF research paper. All computation is client-side; no data is transmitted, stored server-side, or aggregated across organizations.</p>
+      <p style="margin-top:8px; font-family:var(--mono); font-size:11px; color:var(--line-strong);">v${BUILD_VERSION} · ${BUILD_DATE} · ${BUILD_COMMIT}</p>
     </footer>
   </div>
 </div>
