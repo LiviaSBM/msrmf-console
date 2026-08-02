@@ -197,7 +197,7 @@
       <button data-tab="pubs" id="navPubs" style="display:none;">Research &amp; Publications</button>
     </nav>
     <div style="padding:14px 18px; border-top:1px solid rgba(255,255,255,.15); font-family:var(--mono); font-size:10px; color:#5f8299; line-height:1.6;">
-      v${BUILD_VERSION}<br>${BUILD_DATE}<br>${BUILD_COMMIT}
+      Rev C
     </div>
   </aside>
 
@@ -561,7 +561,7 @@
 
     <footer>
       <p>Reference implementation accompanying the MSRMF research paper. All computation is client-side; no data is transmitted, stored server-side, or aggregated across organizations.</p>
-      <p style="margin-top:8px; font-family:var(--mono); font-size:11px; color:var(--line-strong);">v${BUILD_VERSION} · ${BUILD_DATE} · ${BUILD_COMMIT}</p>
+      <p style="margin-top:8px; font-family:var(--mono); font-size:11px; color:var(--line-strong);">Rev C</p>
     </footer>
   </div>
 </div>
@@ -682,8 +682,12 @@ function renderGate1(){
     el.addEventListener('input',(e)=>{
       const id = Number(e.target.dataset.id); const f = e.target.dataset.f;
       const t = tickets.find(x=>x.id===id); if(!t) return;
+  tbody.querySelectorAll('[data-f]').forEach(el=>{
+    el.addEventListener('input',(e)=>{
+      const id = Number(e.target.dataset.id); const f = e.target.dataset.f;
+      const t = tickets.find(x=>x.id===id); if(!t) return;
       t[f] = (f==='complexity') ? (Number(e.target.value)||0) : e.target.value;
-      renderAll();
+      if(e.target.tagName === 'SELECT'){ renderAll(); }
     });
   });
   tbody.querySelectorAll('.del-btn').forEach(btn=>{
@@ -1229,11 +1233,11 @@ if(addPubBtn){ addPubBtn.addEventListener('click', ()=>{ publications.push(newPu
 /* =========================================================
    SEND RESULTS BY EMAIL (via EmailJS — no server required)
    ========================================================= */
-// EmailJS credentials — injected from GitHub environment variables during CI/CD build.
-const EMAILJS_PUBLIC_KEY  = "${EMAILJS_PUBLIC_KEY}";
-const EMAILJS_SERVICE_ID  = "${EMAILJS_SERVICE_ID}";
-const EMAILJS_TEMPLATE_ID = "${EMAILJS_TEMPLATE_ID}";
-const EMAILJS_RECIPIENT   = "${EMAILJS_RECIPIENT}";
+// EmailJS credentials — hardcoded (public key/service/template IDs are safe to expose client-side).
+const EMAILJS_PUBLIC_KEY  = "kKEOUGR1IOktFdC9I";
+const EMAILJS_SERVICE_ID  = "service_bzcds8c";
+const EMAILJS_TEMPLATE_ID = "template_slyjqn6";
+const EMAILJS_RECIPIENT   = "liviasbm@hotmail.com";
 
 if(window.emailjs && EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY.indexOf("${") !== 0){
   emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
