@@ -718,7 +718,7 @@ function renderGate2(){
       const id = Number(e.target.dataset.id); const f = e.target.dataset.f;
       const t = tickets.find(x=>x.id===id); if(!t) return;
       t[f] = e.target.value;
-      renderAll();
+      if(e.target.tagName === 'SELECT'){ renderAll(); }
     });
   });
 }
@@ -783,11 +783,11 @@ function renderDeploy(){
     el.addEventListener(el.multiple ? 'change' : 'input', (e)=>{
       const id = Number(e.target.dataset.id); const f = e.target.dataset.f;
       const b = batches.find(x=>x.id===id); if(!b) return;
-      if(f==='ticketIds'){ b.ticketIds = Array.from(e.target.selectedOptions).map(o=>Number(o.value)); }
-      else if(f==='rollback'){ b.rollback = e.target.checked; }
+      if(f==='ticketIds'){ b.ticketIds = Array.from(e.target.selectedOptions).map(o=>Number(o.value)); renderAll(); }
+      else if(f==='rollback'){ b.rollback = e.target.checked; renderAll(); }
+      else if(f==='status'){ b[f] = e.target.value; renderAll(); }
       else if(f==='sitesCount' || f==='incidentsCount' || f==='timeDays'){ b[f] = Number(e.target.value)||0; }
       else { b[f] = e.target.value; }
-      renderAll();
     });
   });
   tbody.querySelectorAll('[data-delbatch]').forEach(btn=>{
