@@ -682,10 +682,6 @@ function renderGate1(){
     el.addEventListener('input',(e)=>{
       const id = Number(e.target.dataset.id); const f = e.target.dataset.f;
       const t = tickets.find(x=>x.id===id); if(!t) return;
-  tbody.querySelectorAll('[data-f]').forEach(el=>{
-    el.addEventListener('input',(e)=>{
-      const id = Number(e.target.dataset.id); const f = e.target.dataset.f;
-      const t = tickets.find(x=>x.id===id); if(!t) return;
       t[f] = (f==='complexity') ? (Number(e.target.value)||0) : e.target.value;
       if(e.target.tagName === 'SELECT'){ renderAll(); }
     });
